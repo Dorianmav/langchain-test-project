@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "watchOptions": {
+    "watchFile": "priorityPollingInterval",
+    "watchDirectory": "dynamicPriorityPolling",
+    "fallbackPolling": "dynamicPriority",
+    "synchronousWatchDirectory": true,
+    "excludeDirectories": ["**/node_modules", "dist"]
+  }
+}
