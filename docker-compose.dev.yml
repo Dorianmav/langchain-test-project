@@ -1,0 +1,98 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    container_name: rag-nestjs-app-dev
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+
+      # LLM
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - GROQ_API_KEY=${GROQ_API_KEY}
+
+      # Vector DB
+      - VECTOR_STORE_TYPE=chroma
+      - CHROMA_URL=http://chroma:8000
+      - QDRANT_URL=http://qdrant:6333
+
+      # Search
+      - TAVILY_API_KEY=${TAVILY_API_KEY}
+
+      # Redis
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+    volumes:
+      - ./src:/app/src
+      - ./data:/app/data
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+      - node_modules:/app/node_modules
+
+    command: npm run start:dev:poll
+
+    depends_on:
+      - chroma
+      - qdrant
+      - ollama
+      - redis
+
+    networks:
+      - rag-network
+
+  chroma:
+    image: chromadb/chroma:latest
+    container_name: rag-chroma-dev
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./data/vector-db/chroma:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+    networks:
+      - rag-network
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: rag-qdrant-dev
+    ports:
+      - "6334:6333"
+      - "6335:6334"
+    volumes:
+      - ./data/vector-db/qdrant:/qdrant/storage
+    networks:
+      - rag-network
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: rag-ollama-dev
+    ports:
+      - "11435:11434"
+    volumes:
+      - ./data/cache/ollama:/root/.ollama
+    networks:
+      - rag-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: rag-redis-dev
+    ports:
+      - "6380:6379"
+    volumes:
+      - ./data/cache/redis:/data
+    networks:
+      - rag-network
+
+volumes:
+  node_modules:
+
+networks:
+  rag-network:
+    driver: bridge
