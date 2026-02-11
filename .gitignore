@@ -1,7 +1,16 @@
-# compiled output
+# ============================================
+# PROJET RAG - NestJS + LangChain + Docker
+# ============================================
+
+# ============================================
+# NESTJS / NODE.JS
+# ============================================
+
+# Compiled output
 /dist
 /node_modules
 /build
+*.tsbuildinfo
 
 # Logs
 logs
@@ -14,10 +23,13 @@ lerna-debug.log*
 
 # OS
 .DS_Store
+Thumbs.db
 
 # Tests
 /coverage
 /.nyc_output
+/test-results
+*.lcov
 
 # IDEs and editors
 /.idea
@@ -27,6 +39,7 @@ lerna-debug.log*
 *.launch
 .settings/
 *.sublime-workspace
+*.sublime-project
 
 # IDE - VSCode
 .vscode/*
@@ -35,16 +48,10 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# dotenv environment variable files
-.env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
-
-# temp directory
+# Temp directory
 .temp
 .tmp
+/tmp
 
 # Runtime data
 pids
@@ -52,5 +59,273 @@ pids
 *.seed
 *.pid.lock
 
-# Diagnostic reports (https://nodejs.org/api/report.html)
+# Diagnostic reports
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# ============================================
+# ENVIRONNEMENT & SECRETS
+# ============================================
+
+# Environment variables (⚠️ TRÈS IMPORTANT)
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+.env.*.local
+
+# Secrets
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+.secrets
+
+# API Keys (au cas où)
+*apikey*
+*api-key*
+*api_key*
+
+# ============================================
+# DOCKER
+# ============================================
+
+# Docker volumes et données persistantes
+/data
+/vector-db
+/chroma-data
+/qdrant-data
+/postgres-data
+/redis-data
+
+# Backups de bases de données
+/backups
+*.sql
+*.dump
+*.backup
+
+# Docker overrides locaux
+docker-compose.override.yml
+docker-compose.local.yml
+.dockerignore.local
+
+# ============================================
+# RAG / LANGCHAIN SPÉCIFIQUE
+# ============================================
+
+# Documents uploadés par les utilisateurs
+/uploads
+/uploads/*
+/user-uploads
+/documents
+
+# Cache des embeddings
+/embeddings-cache
+/.embeddings
+/cache
+/.cache
+
+# Modèles téléchargés localement (si pas via Docker)
+/models
+/ollama-models
+*.gguf
+*.ggml
+*.bin
+
+# Index vectoriels locaux
+/faiss-index
+/chroma-db
+/vector-store
+*.index
+*.faiss
+
+# Résultats de recherche en cache
+/search-cache
+
+# ============================================
+# DONNÉES & FICHIERS TEMPORAIRES
+# ============================================
+
+# Fichiers temporaires de traitement
+/temp-files
+/processing
+*.processing
+*.chunk
+
+# PDFs et documents temporaires
+/temp-pdfs
+/temp-docs
+
+# Exports et rapports générés
+/exports
+/reports
+*.export
+
+# ============================================
+# TESTS & DÉVELOPPEMENT
+# ============================================
+
+# Tests E2E artifacts
+/test-uploads
+/test-data
+/test-results
+
+# Snapshots de tests
+**/__snapshots__
+
+# Mocks et fixtures temporaires
+/fixtures/temp
+
+# ============================================
+# BUILD & DÉPLOIEMENT
+# ============================================
+
+# Build artifacts
+/out
+/output
+*.tar.gz
+*.zip
+
+# Webpack
+.webpack/
+
+# Next.js (si vous ajoutez un frontend)
+.next/
+out/
+
+# Nuxt.js (si vous ajoutez un frontend)
+.nuxt/
+dist/
+
+# ============================================
+# MONITORING & LOGS
+# ============================================
+
+# Prometheus data
+/prometheus-data
+
+# Grafana data
+/grafana-data
+
+# Application logs
+*.log.*
+*.log.gz
+/logs/*
+!logs/.gitkeep
+
+# Error logs spécifiques
+error.log
+access.log
+combined.log
+
+# ============================================
+# PACKAGE MANAGERS
+# ============================================
+
+# NPM
+package-lock.json
+npm-shrinkwrap.json
+
+# Yarn
+yarn.lock
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
+# PNPM
+pnpm-lock.yaml
+.pnpm-debug.log
+
+# ============================================
+# SYSTÈME & DIVERS
+# ============================================
+
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ============================================
+# CI/CD
+# ============================================
+
+# GitHub Actions artifacts
+/artifacts
+
+# Coverage reports pour CI
+coverage/
+.nyc_output/
+*.coverage
+
+# ============================================
+# SÉCURITÉ
+# ============================================
+
+# Certificats SSL (si générés localement)
+*.crt
+*.cer
+*.der
+*.key
+*.pem
+ssl/
+certs/
+
+# Tokens
+*.token
+.token
+
+# ============================================
+# FICHIERS À GARDER (exceptions)
+# ============================================
+
+# Gardez ces fichiers même s'ils sont dans des dossiers ignorés
+!.gitkeep
+!.env.example
+!env.example
+
+# Gardez les exemples de configuration
+!config.example.json
+!settings.example.json
+
+# ============================================
+# NOTES IMPORTANTES
+# ============================================
+#
+# ✅ CE FICHIER PROTÈGE :
+# - Vos clés API et secrets
+# - Les données utilisateurs uploadées
+# - Les modèles LLM volumineux
+# - Les bases de données vectorielles
+# - Les logs et caches
+#
+# ⚠️ VÉRIFIEZ TOUJOURS :
+# - Que .env est bien ignoré
+# - Qu'aucun secret n'est commité
+# - Que les données sensibles restent locales
+#
+# 💡 COMMANDES UTILES :
+# - git status : voir ce qui sera commité
+# - git check-ignore -v <fichier> : vérifier si un fichier est ignoré
+# - git clean -fdX : supprimer tous les fichiers ignorés
+#
+# ============================================()
