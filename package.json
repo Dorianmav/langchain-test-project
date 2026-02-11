@@ -6,12 +6,10 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    
     "// ===== COMMANDES DE BASE =====": "",
     "setup": "npm run setup:env && npm run setup:permissions",
     "setup:env": "node -e \"const fs = require('fs'); if (!fs.existsSync('.env')) { fs.copyFileSync('.env.example', '.env'); console.log('✅ Fichier .env créé'); } else { console.log('⚠️  .env existe déjà'); }\"",
     "setup:permissions": "echo ✅ Setup terminé!",
-    
     "// ===== DOCKER =====": "",
     "docker:build": "cd docker && docker-compose build",
     "docker:build-no-cache": "cd docker && docker-compose build --no-cache",
@@ -24,7 +22,6 @@
     "docker:restart": "cd docker && docker-compose restart",
     "docker:restart-app": "cd docker && docker-compose restart app",
     "docker:info": "node -e \"console.log('\\n✅ Services démarrés!\\n\\n📍 Services disponibles:\\n  • API NestJS:      http://localhost:3001\\n  • Ollama Web UI:   http://localhost:8081\\n  • ChromaDB:        http://localhost:8000\\n  • Qdrant:          http://localhost:6333/dashboard\\n  • SearXNG:         http://localhost:8888\\n')\"",
-    
     "// ===== LOGS & MONITORING =====": "",
     "logs": "cd docker && docker-compose logs -f",
     "logs:app": "cd docker && docker-compose logs -f app",
@@ -32,7 +29,6 @@
     "logs:chroma": "cd docker && docker-compose logs -f chroma",
     "docker:ps": "cd docker && docker-compose ps",
     "docker:stats": "cd docker && docker stats",
-
     "// ===== OLLAMA =====": "",
     "ollama:setup": "node scripts/setup-ollama.js",
     "ollama:list": "cd docker && docker-compose exec ollama ollama list",
@@ -40,27 +36,22 @@
     "ollama:pull-embeddings": "cd docker && docker-compose exec ollama ollama pull nomic-embed-text",
     "ollama:shell": "cd docker && docker-compose exec ollama bash",
     "ollama:test": "cd docker && docker-compose exec ollama ollama run llama3.2 \"Quelle est la capitale de la France? Réponds en une phrase.\"",
-
     "// ===== SHELL & DEBUG =====": "",
     "shell": "cd docker && docker-compose exec app sh",
     "shell:postgres": "cd docker && docker-compose exec postgres psql -U raguser -d ragdb",
     "shell:redis": "cd docker && docker-compose exec redis redis-cli",
-    
     "// ===== TESTS =====": "",
     "test": "cd docker && docker-compose exec app npm test",
     "test:e2e": "cd docker && docker-compose exec app npm run test:e2e",
     "test:cov": "cd docker && docker-compose exec app npm run test:cov",
     "test:watch": "cd docker && docker-compose exec app npm run test:watch",
-
     "// ===== DATABASE =====": "",
     "db:backup": "cd docker && node scripts/db-backup.js",
     "db:restore": "node scripts/db-restore.js",
-
     "// ===== NETTOYAGE =====": "",
     "clean": "cd docker && docker system prune -f",
     "clean:volumes": "cd docker && docker volume prune -f",
     "clean:all": "cd docker && docker-compose down -v && docker system prune -a -f && docker volume prune -f",
-
     "// ===== DÉVELOPPEMENT =====": "",
     "dev": "npm run dev:docker",
     "dev:local": "nest start --watch",
@@ -75,7 +66,6 @@
     "dev:docker:logs": "docker compose -f docker-compose.dev.yml logs -f",
     "dev:docker:restart": "docker compose -f docker-compose.dev.yml restart app",
     "dev:docker:shell": "docker compose -f docker-compose.dev.yml exec app sh",
-
     "// ===== BUILD =====": "",
     "build": "nest build",
     "start": "nest start",
@@ -87,17 +77,29 @@
     "info": "npm run info:docker && npm run info:volumes",
     "info:docker": "node -e \"console.log('Docker:'); const { execSync } = require('child_process'); try { console.log(execSync('docker --version').toString()); console.log(execSync('docker-compose --version').toString()); } catch(e) { console.log('❌ Docker non installé'); }\"",
     "info:volumes": "docker volume ls | grep rag || echo \"Aucun volume\"",
-    "urls": "node -e \"console.log('🌐 URLs des services:✅ Interface utilisateur:\\n  • API NestJS:      http://localhost:3000\\n  • API Docs:        http://localhost:3000/api/docs\\n  • Ollama Web UI:   http://localhost:8080\\n  • SearXNG:         http://localhost:8888\\n\\n✅ Bases de données:\\n  • ChromaDB:        http://localhost:8000\\n  • Qdrant:          http://localhost:6333/dashboard\\n  • Redis:           localhost:6379\\n  • PostgreSQL:      localhost:5432\\n')\""
+    "urls": "node -e \"console.log('🌐 URLs des services:✅ Interface utilisateur:\\n  • API NestJS:      http://localhost:3001\\n  • API Docs:        http://localhost:3001/api/docs\\n  • Ollama Web UI:   http://localhost:8080\\n  • SearXNG:         http://localhost:8888\\n\\n✅ Bases de données:\\n  • ChromaDB:        http://localhost:8000\\n  • Qdrant:          http://localhost:6333/dashboard\\n  • Redis:           localhost:6379\\n  • PostgreSQL:      localhost:5432\\n')\""
   },
   "dependencies": {
     "@langchain/anthropic": "^1.3.1",
+    "@langchain/community": "^1.1.13",
     "@langchain/core": "^1.1.6",
+    "@langchain/groq": "^1.1.0",
+    "@langchain/ollama": "^1.2.2",
     "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/swagger": "^11.2.6",
+    "axios": "^1.13.5",
+    "chromadb": "^3.3.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.3",
+    "dotenv": "^17.2.4",
     "langchain": "^1.2.1",
+    "qdrant-client": "^0.0.1",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
