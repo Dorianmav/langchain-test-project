@@ -58,11 +58,12 @@ function askYesNo(question) {
 // Vérifier si Ollama est en cours d'exécution
 async function checkOllamaRunning() {
   try {
-    await execCommand(
-      'docker-compose ps ollama | grep "Up"',
+    const output = await execCommand(
+      'docker compose -f docker-compose.dev.yml ps ollama',
       'Vérification du service Ollama'
     );
-    return true;
+    // Vérifier si le conteneur est "Up" (running)
+    return output.includes('Up') || output.includes('running');
   } catch (error) {
     return false;
   }
@@ -87,7 +88,7 @@ async function main() {
     
     if (shouldStart) {
       try {
-        await execCommand('docker-compose up -d ollama', 'Démarrage d\'Ollama');
+        await execCommand('docker compose -f docker-compose.dev.yml up -d ollama', 'Démarrage d\'Ollama');
         console.log(`${colors.green}✅ Ollama démarré avec succès${colors.reset}`);
         
         // Attendre que le service soit prêt
@@ -95,13 +96,13 @@ async function main() {
         await new Promise(resolve => setTimeout(resolve, 10000));
       } catch (error) {
         console.error(`${colors.yellow}❌ Impossible de démarrer Ollama${colors.reset}`);
-        console.log(`${colors.yellow}Veuillez exécuter manuellement: docker-compose up -d ollama${colors.reset}`);
+        console.log(`${colors.yellow}Veuillez exécuter manuellement: docker compose -f docker-compose.dev.yml up -d ollama${colors.reset}`);
         rl.close();
         process.exit(1);
       }
     } else {
       console.log(`${colors.yellow}❌ Ollama doit être démarré pour continuer${colors.reset}`);
-      console.log(`${colors.yellow}Exécutez: docker-compose up -d ollama${colors.reset}`);
+      console.log(`${colors.yellow}Exécutez: docker compose -f docker-compose.dev.yml up -d ollama${colors.reset}`);
       rl.close();
       process.exit(1);
     }
@@ -117,10 +118,10 @@ async function main() {
   let existingModels = '';
   try {
     existingModels = await execCommand(
-      'docker-compose exec -T ollama ollama list',
+      'docker compose -f docker-compose.dev.yml exec ollama ollama list',
       'Liste des modèles'
     );
-    console.log(existingModels);
+    // Le résultat est déjà affiché par execCommand via stdout.on('data')
   } catch (error) {
     console.log(`${colors.yellow}Aucun modèle installé${colors.reset}`);
   }
@@ -141,7 +142,7 @@ async function main() {
     if (shouldReinstall) {
       try {
         await execCommand(
-          'docker-compose exec -T ollama ollama pull llama3.2',
+          'docker compose -f docker-compose.dev.yml exec ollama ollama pull llama3.2',
           'Téléchargement de llama3.2'
         );
         console.log(`${colors.green}✅ llama3.2 téléchargé${colors.reset}`);
@@ -155,7 +156,7 @@ async function main() {
     if (shouldInstallLlama) {
       try {
         await execCommand(
-          'docker-compose exec -T ollama ollama pull llama3.2',
+          'docker compose -f docker-compose.dev.yml exec ollama ollama pull llama3.2',
           'Téléchargement de llama3.2 (peut prendre plusieurs minutes)'
         );
         console.log(`${colors.green}✅ llama3.2 téléchargé avec succès${colors.reset}`);
@@ -181,7 +182,7 @@ async function main() {
     if (shouldReinstall) {
       try {
         await execCommand(
-          'docker-compose exec -T ollama ollama pull nomic-embed-text',
+          'docker compose -f docker-compose.dev.yml exec ollama ollama pull nomic-embed-text',
           'Téléchargement de nomic-embed-text'
         );
         console.log(`${colors.green}✅ nomic-embed-text téléchargé${colors.reset}`);
@@ -195,7 +196,7 @@ async function main() {
     if (shouldInstallEmbeddings) {
       try {
         await execCommand(
-          'docker-compose exec -T ollama ollama pull nomic-embed-text',
+          'docker compose -f docker-compose.dev.yml exec ollama ollama pull nomic-embed-text',
           'Téléchargement de nomic-embed-text'
         );
         console.log(`${colors.green}✅ nomic-embed-text téléchargé avec succès${colors.reset}`);
@@ -215,11 +216,11 @@ async function main() {
     try {
       console.log(`${colors.cyan}Question test: "Quelle est la capitale de la France?"${colors.reset}`);
       const response = await execCommand(
-        'docker-compose exec -T ollama ollama run llama3.2 "Quelle est la capitale de la France? Réponds en une phrase."',
+        'docker compose -f docker-compose.dev.yml exec ollama ollama run llama3.2 "Quelle est la capitale de la France? Réponds en une phrase."',
         'Test d\'Ollama'
       );
-      console.log(`${colors.green}Réponse:${colors.reset}`);
-      console.log(response);
+      // La réponse est déjà affichée en temps réel par execCommand
+      console.log(`${colors.green}✅ Test terminé${colors.reset}`);
     } catch (error) {
       console.error(`${colors.yellow}❌ Échec du test${colors.reset}`);
     }
@@ -234,10 +235,10 @@ async function main() {
   
   try {
     const finalList = await execCommand(
-      'docker-compose exec -T ollama ollama list',
+      'docker compose -f docker-compose.dev.yml exec ollama ollama list',
       'Modèles installés'
     );
-    console.log(finalList);
+    // Le résultat est déjà affiché par execCommand via stdout.on('data')
   } catch (error) {
     console.log(`${colors.yellow}Impossible de lister les modèles${colors.reset}`);
   }
