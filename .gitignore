@@ -222,6 +222,10 @@ error.log
 access.log
 combined.log
 
+# Markdown
+*.md
+*.markdown
+
 # ============================================
 # PACKAGE MANAGERS
 # ============================================

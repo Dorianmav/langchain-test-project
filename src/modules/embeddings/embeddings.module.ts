@@ -1,14 +1,11 @@
-import { EmbeddingsService } from './embeddings.service';
-/*
-https://docs.nestjs.com/modules
-*/
-
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { EmbeddingsService } from './embeddings.service';
+import { OllamaEmbeddingsProvider } from './providers/ollama-embeddings.provider';
 
 @Module({
-    imports: [],
-    controllers: [],
-    providers: [
-        EmbeddingsService,],
+  imports: [ConfigModule],
+  providers: [EmbeddingsService, OllamaEmbeddingsProvider],
+  exports: [EmbeddingsService], // Exporter pour utilisation dans VectorStoreModule
 })
-export class EmbeddingsModule { }
+export class EmbeddingsModule {}
