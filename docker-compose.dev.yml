@@ -79,6 +79,9 @@ services:
       - ./data/cache/ollama:/root/.ollama
     networks:
       - rag-network
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
 
   redis:
     image: redis:7-alpine
