@@ -238,11 +238,11 @@ $ exit  # Pour sortir
 **Étape 4 : Tester (sur votre machine)**
 ```bash
 # Tester l'API
-curl http://localhost:3000/health
+curl http://localhost:3001/health
 
 # Accéder aux interfaces
 # Ouvrir dans le navigateur :
-# - http://localhost:3000 (API)
+# - http://localhost:3001 (API)
 # - http://localhost:8080 (Ollama UI)
 ```
 
