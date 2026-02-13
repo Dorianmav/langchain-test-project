@@ -10,6 +10,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { LLMModule } from './modules/llm/llm.module';
 import { EmbeddingsModule } from './modules/embeddings/embeddings.module';
 import { VectorStoreModule } from './modules/vector-store/vector-store.module';
+import { DocumentLoaderModule } from './modules/document-loader/document-loader.module';
+import { RagModule } from './modules/rag/rag.module';
 import { AuditModule } from './common/audit.module';
 
 @Module({
@@ -41,6 +43,8 @@ import { AuditModule } from './common/audit.module';
     LLMModule,
     EmbeddingsModule,
     VectorStoreModule,
+    DocumentLoaderModule,
+    RagModule,
   ],
   controllers: [AppController],
   providers: [
