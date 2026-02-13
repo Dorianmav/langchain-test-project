@@ -223,8 +223,8 @@ access.log
 combined.log
 
 # Markdown
-*.md
-*.markdown
+# *.md
+# *.markdown
 
 # ============================================
 # PACKAGE MANAGERS
