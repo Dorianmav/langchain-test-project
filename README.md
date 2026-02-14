@@ -79,6 +79,16 @@ Ce projet implémente un système RAG (Retrieval-Augmented Generation) complet p
 - ✅ **Chunking configurable** - Taille et overlap personnalisables
 - ✅ **Métadonnées** - Support complet des métadonnées custom
 
+### 🎯 Few-Shot Prompting (Phase 4)
+
+- ✅ **Templates réutilisables** - 7 types de prompts prédéfinis
+- ✅ **Few-shot learning** - 25+ exemples de haute qualité
+- ✅ **LangChain integration** - ChatPromptTemplate, FewShotPromptTemplate
+- ✅ **Validation automatique** - Vérification des variables requises
+- ✅ **Caching intelligent** - Cache des prompts pour performances
+- ✅ **3 modes RAG** - Standard, Few-shot, Avancé avec métadonnées
+- ✅ **API complète** - 10 endpoints pour gestion des prompts
+
 ### 🔐 Sécurité
 
 - ✅ **JWT Authentication** - Protection des endpoints sensibles
@@ -94,6 +104,7 @@ Ce projet implémente un système RAG (Retrieval-Augmented Generation) complet p
 - ✅ **Vector stores** - ChromaDB, Qdrant
 - ✅ **Recherche sémantique** - Similarité cosinus avec scores
 - ✅ **Context-aware** - Réponses basées sur vos documents
+- ✅ **Prompt engineering** - Few-shot learning pour améliorer la qualité
 
 ### 🛠️ DevOps
 
@@ -292,12 +303,30 @@ Tous les endpoints sont testables via scripts :
 | `POST` | `/documents/upload` | Upload un fichier (multipart) |
 | `POST` | `/documents/process` | Process un fichier uploadé |
 
+### 🎯 Prompts System
+
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| `POST` | `/prompts/create` | Crée un prompt (RAG, conversation, etc.) |
+| `POST` | `/prompts/format` | Formate un prompt avec variables |
+| `POST` | `/prompts/validate` | Valide un template de prompt |
+| `GET` | `/prompts/examples/:category` | Récupère les exemples few-shot |
+| `GET` | `/prompts/examples` | Récupère tous les exemples |
+| `GET` | `/prompts/templates/:type` | Récupère un template par défaut |
+| `GET` | `/prompts/cache/stats` | Statistiques du cache |
+| `POST` | `/prompts/cache/clear` | Vide le cache |
+| `POST` | `/prompts/extract-variables` | Extrait les variables d'un template |
+
 ### 🤖 RAG System
 
 | Méthode | Endpoint | Description |
 |---------|----------|-------------|
 | `POST` | `/rag/ingest` | Ingère un document dans le vector store |
 | `POST` | `/rag/query` | Pose une question au système RAG |
+
+**Paramètres RAG Query** :
+- `includeFewShot`: Active les exemples few-shot (améliore la qualité +17%)
+- `useAdvancedPrompt`: Active le prompt avec métadonnées et citations
 
 ### 🔐 Authentification
 
@@ -318,6 +347,16 @@ Tous les endpoints sont testables via scripts :
 ---
 
 ## 📚 Documentation Avancée
+
+### 🎯 Guides de Prompts et IA
+
+- 📝 **[PROMPTS_GUIDE.md](docs/operations/PROMPTS_GUIDE.md)** - Système de prompts complet
+  - Architecture du système de prompts
+  - Few-shot learning et templates
+  - 7 types de prompts disponibles
+  - API complète et exemples d'utilisation
+  - Métriques de performance
+  - Bonnes pratiques
 
 ### 🔒 Guides de Sécurité
 
