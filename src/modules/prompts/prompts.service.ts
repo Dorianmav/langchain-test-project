@@ -25,7 +25,12 @@ import {
   CreatePromptResponse,
   CreateFewShotExampleDto,
   CreateFewShotExampleResponse,
+  CreateTemplateDto,
+  UpdateTemplateDto,
+  TemplateResponse,
+  TemplateListResponse,
 } from './dto/index';
+import { CustomTemplateService } from './services';
 
 /**
  * Service de gestion centralisée des prompts
@@ -41,6 +46,8 @@ export class PromptService {
   // Stockage en mémoire des exemples few-shot personnalisés
   private customExamples = new Map<FewShotCategory, FewShotExample[]>();
 
+  constructor(private readonly customTemplateService: CustomTemplateService) {}
+
   /**
    * Crée un prompt selon le type et les options
    */
@@ -50,22 +57,38 @@ export class PromptService {
     try {
       const cacheKey = this.generateCacheKey(dto);
 
-      // Vérifier le cache
-      let prompt = this.promptCache.get(cacheKey);
+      // Vérifier le cache avec préfixe custom/system
+      const customTemplate = this.customTemplateService.getCustomTemplate(dto.type);
+      const finalCacheKey = customTemplate ? `custom:${cacheKey}` : cacheKey;
+      let prompt = this.promptCache.get(finalCacheKey);
 
       if (!prompt) {
-        // Créer le prompt via la factory
-        prompt = PromptFactory.create(dto.type, {
-          includeFewShot: dto.includeFewShot,
-          maxLength: dto.maxLength,
-          includeHistory: dto.includeHistory,
-        });
+        if (customTemplate) {
+          // Utiliser le template custom
+          this.logger.debug(`Using custom template: ${dto.type}`);
+          prompt = PromptTemplate.fromTemplate(customTemplate.content);
+        } else {
+          // Vérifier si c'est un type système valide
+          const validSystemTypes = Object.values(PromptType);
+          if (!validSystemTypes.includes(dto.type as PromptType)) {
+            throw new BadRequestException(
+              `Template "${dto.type}" introuvable. Types système: [${validSystemTypes.join(', ')}]. Créez un template custom avec POST /templates/custom.`
+            );
+          }
+
+          // Créer le prompt via la factory (templates système)
+          prompt = PromptFactory.create(dto.type as PromptType, {
+            includeFewShot: dto.includeFewShot,
+            maxLength: dto.maxLength,
+            includeHistory: dto.includeHistory,
+          });
+        }
 
         // Mettre en cache
-        this.promptCache.set(cacheKey, prompt);
-        this.logger.debug(`Prompt cached with key: ${cacheKey}`);
+        this.promptCache.set(finalCacheKey, prompt);
+        this.logger.debug(`Prompt cached with key: ${finalCacheKey}`);
       } else {
-        this.logger.debug(`Prompt loaded from cache: ${cacheKey}`);
+        this.logger.debug(`Prompt loaded from cache: ${finalCacheKey}`);
       }
 
       // Formater le prompt si des variables sont fournies
@@ -383,4 +406,43 @@ export class PromptService {
       return totalCount;
     }
   }
+
+  // ==================== CRUD TEMPLATES PERSONNALISÉS ====================
+
+  /**
+   * Crée un nouveau template personnalisé
+   */
+  createCustomTemplate(dto: CreateTemplateDto): TemplateResponse {
+    return this.customTemplateService.createCustomTemplate(dto);
+  }
+
+  /**
+   * Récupère un template par nom (custom ou système)
+   */
+  getTemplateByName(name: string): TemplateResponse {
+    return this.customTemplateService.getTemplateByName(name);
+  }
+
+  /**
+   * Récupère tous les templates (système + custom)
+   */
+  getAllTemplatesWithCustom(): TemplateListResponse {
+    return this.customTemplateService.getAllTemplatesWithCustom();
+  }
+
+  /**
+   * Met à jour un template personnalisé
+   */
+  updateCustomTemplate(name: string, dto: UpdateTemplateDto): TemplateResponse {
+    return this.customTemplateService.updateCustomTemplate(name, dto);
+  }
+
+  /**
+   * Supprime un template personnalisé
+   */
+  deleteCustomTemplate(name: string): { message: string; deletedTemplate: string } {
+    return this.customTemplateService.deleteCustomTemplate(name);
+  }
+
+
 }

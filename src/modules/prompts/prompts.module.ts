@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PromptsController } from './prompts.controller';
 import { PromptService } from './prompts.service';
+import { CustomTemplateService } from './services';
 
 /**
  * Module de gestion des prompts
@@ -10,7 +11,7 @@ import { PromptService } from './prompts.service';
  */
 @Module({
   controllers: [PromptsController],
-  providers: [PromptService],
+  providers: [PromptService, CustomTemplateService],
   exports: [PromptService], // Export pour utilisation dans d'autres modules (RAG, LLM, etc.)
 })
 export class PromptsModule {}
