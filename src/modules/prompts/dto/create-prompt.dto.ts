@@ -1,18 +1,21 @@
-import { IsString, IsOptional, IsBoolean, IsNumber, IsEnum, Min, Max } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsNumber, IsNotEmpty, Min, Max } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { PromptType } from './prompt-enums.dto';
 
 /**
  * DTO pour la création d'un prompt personnalisé
  */
 export class CreatePromptDto {
   @ApiProperty({
-    description: 'Type de prompt à créer',
-    enum: PromptType,
-    example: PromptType.RAG,
+    description: 'Type de prompt à créer (système) ou nom de template personnalisé',
+    example: 'rag',
+    examples: {
+      system: { value: 'rag', description: 'Template système RAG' },
+      custom: { value: 'search', description: 'Template personnalisé search' },
+    },
   })
-  @IsEnum(PromptType)
-  type: PromptType;
+  @IsString()
+  @IsNotEmpty()
+  type: string;
 
   @ApiPropertyOptional({
     description: 'Inclure des exemples few-shot',

@@ -1,5 +1,4 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { PromptType } from './prompt-enums.dto';
 
 /**
  * Réponse de validation de prompt
@@ -35,10 +34,10 @@ export class CreatePromptResponse {
   prompt: string;
 
   @ApiProperty({
-    description: 'Type de prompt créé',
-    enum: PromptType,
+    description: 'Type de prompt créé ou nom du template personnalisé',
+    example: 'rag',
   })
-  type: PromptType;
+  type: string;
 
   @ApiProperty({
     description: 'Exemples few-shot inclus',

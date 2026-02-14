@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Delete, Body, Param, Logger } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Patch, Body, Param, Logger } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { PromptService } from './prompts.service';
 import {
@@ -11,6 +11,10 @@ import {
   CreatePromptResponse,
   CreateFewShotExampleDto,
   CreateFewShotExampleResponse,
+  CreateTemplateDto,
+  UpdateTemplateDto,
+  TemplateResponse,
+  TemplateListResponse,
 } from './dto';
 
 /**
@@ -142,12 +146,124 @@ export class PromptsController {
   }
 
   /**
-   * Récupère un template par défaut
+   * Récupère tous les templates (système + personnalisés)
    */
-  @Get('templates/:type')
+  @Get('templates/all')
   @ApiOperation({
-    summary: 'Récupérer un template par défaut',
-    description: 'Récupère le template par défaut pour un type de prompt',
+    summary: 'Lister tous les templates (système + custom)',
+    description: 'Récupère la liste complète des templates système et personnalisés',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Liste complète récupérée',
+    type: TemplateListResponse,
+  })
+  getAllTemplatesWithCustom(): TemplateListResponse {
+    this.logger.log('GET /prompts/templates/all');
+    return this.promptService.getAllTemplatesWithCustom();
+  }
+
+  /**
+   * Crée un nouveau template personnalisé
+   */
+  @Post('templates/custom')
+  @ApiOperation({
+    summary: 'Créer un template personnalisé',
+    description: 'Crée un nouveau template personnalisé pour des cas d\'usage spécifiques (ex: search, scraping)',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Template créé avec succès',
+    type: TemplateResponse,
+  })
+  @ApiResponse({ status: 400, description: 'Données invalides ou template déjà existant' })
+  @ApiResponse({ status: 403, description: 'Nom réservé pour template système' })
+  createCustomTemplate(@Body() dto: CreateTemplateDto): TemplateResponse {
+    this.logger.log(`POST /prompts/templates/custom - name: ${dto.name}`);
+    return this.promptService.createCustomTemplate(dto);
+  }
+
+  /**
+   * Récupère un template par nom
+   */
+  @Get('templates/:name')
+  @ApiOperation({
+    summary: 'Récupérer un template par nom',
+    description: 'Récupère un template spécifique (système ou personnalisé) par son nom',
+  })
+  @ApiParam({
+    name: 'name',
+    description: 'Nom du template (ex: rag, search, scraper)',
+    example: 'search',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Template récupéré avec succès',
+    type: TemplateResponse,
+  })
+  @ApiResponse({ status: 404, description: 'Template introuvable' })
+  getTemplateByName(@Param('name') name: string): TemplateResponse {
+    this.logger.log(`GET /prompts/templates/${name}`);
+    return this.promptService.getTemplateByName(name);
+  }
+
+  /**
+   * Met à jour un template personnalisé
+   */
+  @Patch('templates/custom/:name')
+  @ApiOperation({
+    summary: 'Mettre à jour un template personnalisé',
+    description: 'Modifie un template personnalisé existant. Les templates système ne peuvent pas être modifiés.',
+  })
+  @ApiParam({
+    name: 'name',
+    description: 'Nom du template personnalisé à modifier',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Template modifié avec succès',
+    type: TemplateResponse,
+  })
+  @ApiResponse({ status: 403, description: 'Template système non modifiable' })
+  @ApiResponse({ status: 404, description: 'Template introuvable' })
+  updateCustomTemplate(
+    @Param('name') name: string,
+    @Body() dto: UpdateTemplateDto,
+  ): TemplateResponse {
+    this.logger.log(`PATCH /prompts/templates/custom/${name}`);
+    return this.promptService.updateCustomTemplate(name, dto);
+  }
+
+  /**
+   * Supprime un template personnalisé
+   */
+  @Delete('templates/custom/:name')
+  @ApiOperation({
+    summary: 'Supprimer un template personnalisé',
+    description: 'Supprime un template personnalisé. Les templates système ne peuvent pas être supprimés.',
+  })
+  @ApiParam({
+    name: 'name',
+    description: 'Nom du template personnalisé à supprimer',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Template supprimé avec succès',
+  })
+  @ApiResponse({ status: 403, description: 'Template système non supprimable' })
+  @ApiResponse({ status: 404, description: 'Template introuvable' })
+  deleteCustomTemplate(@Param('name') name: string) {
+    this.logger.log(`DELETE /prompts/templates/custom/${name}`);
+    return this.promptService.deleteCustomTemplate(name);
+  }
+
+  /**
+   * Récupère un template par défaut (ancien endpoint, conservé pour compatibilité)
+   */
+  @Get('templates/system/:type')
+  @ApiOperation({
+    summary: 'Récupérer un template système par type',
+    description: 'Récupère le template système par défaut pour un type de prompt',
   })
   @ApiParam({
     name: 'type',
