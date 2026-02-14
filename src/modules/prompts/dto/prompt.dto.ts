@@ -1,27 +1,6 @@
 import { IsString, IsOptional, IsBoolean, IsNumber, IsEnum, Min, Max } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-
-/**
- * Types de prompts disponibles
- */
-export enum PromptType {
-  RAG = 'rag',
-  CONVERSATION = 'conversation',
-  SUMMARIZATION = 'summarization',
-  CODE_EXPLANATION = 'code',
-  EXTRACTION = 'extraction',
-}
-
-/**
- * Catégories d'exemples few-shot
- */
-export enum FewShotCategory {
-  RAG = 'rag',
-  CONVERSATION = 'conversation',
-  CODE = 'code',
-  SUMMARIZATION = 'summarization',
-  EXTRACTION = 'extraction',
-}
+import { PromptType } from './prompt-enums.dto';
 
 /**
  * DTO pour la création d'un prompt personnalisé
