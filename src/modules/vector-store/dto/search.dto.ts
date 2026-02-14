@@ -1,6 +1,5 @@
 import { IsString, IsOptional, IsNumber, Min, Max, IsObject, IsBoolean } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { VectorStoreDocumentDto } from './document.dto';
 
 /**
  * DTO pour la recherche de similarité
@@ -45,26 +44,4 @@ export class SearchDto {
   @IsOptional()
   @IsBoolean()
   includeScores?: boolean = false;
-}
-
-/**
- * DTO de réponse pour la recherche
- */
-export class SearchResponseDto {
-  @ApiProperty({ type: [VectorStoreDocumentDto] })
-  documents: VectorStoreDocumentDto[];
-
-  @ApiProperty({ example: 'Quelle est la capitale de la France ?' })
-  query: string;
-
-  @ApiProperty({ example: 4 })
-  resultsCount: number;
-
-  @ApiProperty({ example: { provider: 'chroma', collection: 'rag_documents', embeddingsModel: 'nomic-embed-text' } })
-  metadata: {
-    provider: string;
-    collection: string;
-    embeddingsModel: string;
-    searchDuration?: number;
-  };
 }
