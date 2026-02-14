@@ -1,0 +1,789 @@
+{
+  "info": {
+    "_postman_id": "9fc94022-4099-44e8-a33c-e2a15fbd79c2",
+    "name": "LangChain RAG NestJS API 2",
+    "description": "Collection complète pour l\u0027API LangChain RAG avec NestJS - 30 endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "28161110"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Prompts - Création",
+      "item": [
+        {
+          "name": "Create RAG Prompt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"rag\",\n  \"includeFewShot\": false,\n  \"variables\": {\n    \"context\": \"LangChain est un framework pour développer des applications alimentées par des modèles de langage.\",\n    \"question\": \"Qu\u0027est-ce que LangChain ?\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/prompts/create",
+              "path": [
+                "prompts",
+                "create"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Crée un prompt RAG avec contexte et question"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Conversation Prompt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"conversation\",\n  \"includeHistory\": true,\n  \"variables\": {\n    \"message\": \"Bonjour, comment ça va ?\",\n    \"history\": \"User: Salut!\\nAssistant: Bonjour!\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/prompts/create",
+              "path": [
+                "prompts",
+                "create"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Crée un prompt de conversation avec historique"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Summarization Prompt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"summarization\",\n  \"maxLength\": 100,\n  \"variables\": {\n    \"text\": \"LangChain est un framework open source qui permet de développer des applications alimentées par des modèles de langage. Il fournit des outils pour gérer les prompts, les chaînes de traitement, et l\u0027intégration avec diverses sources de données.\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/prompts/create",
+              "path": [
+                "prompts",
+                "create"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Crée un prompt de résumé avec longueur maximale"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Code Explanation Prompt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"code\",\n  \"variables\": {\n    \"code\": \"const sum = (a, b) =\u003e a + b;\",\n    \"language\": \"JavaScript\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/prompts/create",
+              "path": [
+                "prompts",
+                "create"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Crée un prompt d\u0027explication de code"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Extraction Prompt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"extraction\",\n  \"variables\": {\n    \"text\": \"John Doe, 35 ans, habite à Paris. Email: john@example.com\",\n    \"format\": \"JSON avec fields: name, age, city, email\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/prompts/create",
+              "path": [
+                "prompts",
+                "create"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Crée un prompt d\u0027extraction d\u0027informations structurées"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Custom Template Prompt (Search)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"search\",\n  \"variables\": {\n    \"query\": \"LangChain embeddings\",\n    \"sources\": \"documentation officielle, GitHub, Stack Overflow\",\n    \"maxResults\": \"10\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/prompts/create",
+              "path": [
+                "prompts",
+                "create"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Utilise un template custom \u0027search\u0027 (doit être créé au préalable)\n\n[Create custom template Search](https://go.postman.co/workspace/da2e4ca2-954a-45d7-8d44-29fb36acb969/request/28161110-c3eba04f-db2a-4448-8861-b20295a8254f)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints pour créer des prompts (système et custom)"
+    },
+    {
+      "name": "2. Prompts - Utilitaires",
+      "item": [
+        {
+          "name": "Format Prompt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"template\": \"Bonjour {name}, vous avez {age} ans et vous vivez à {ville}.\",\n  \"variables\": {\n    \"name\": \"Alice\",\n    \"age\": 30,\n    \"ville\": \"Paris\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/prompts/format",
+              "path": [
+                "prompts",
+                "format"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Formate un template avec des variables"
+          },
+          "response": []
+        },
+        {
+          "name": "Validate Prompt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"template\": \"Question: {question}\\nContext: {context}\",\n  \"requiredVariables\": [\"question\", \"context\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/prompts/validate",
+              "path": [
+                "prompts",
+                "validate"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Valide un template et ses variables"
+          },
+          "response": []
+        },
+        {
+          "name": "Extract Variables",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"template\": \"Analyse {topic} en utilisant {method} et génère un rapport.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/prompts/extract-variables",
+              "path": [
+                "prompts",
+                "extract-variables"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Extrait les variables d\u0027un template"
+          },
+          "response": []
+        },
+        {
+          "name": "Clear Cache",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/prompts/cache/clear",
+              "path": [
+                "prompts",
+                "cache",
+                "clear"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Vide le cache des prompts"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Cache Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/prompts/cache/stats",
+              "path": [
+                "prompts",
+                "cache",
+                "stats"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Récupère les statistiques du cache"
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints utilitaires (format, validation, extraction, cache)"
+    },
+    {
+      "name": "3. Templates - Système",
+      "item": [
+        {
+          "name": "Get All Templates (System Only)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/prompts/templates",
+              "path": [
+                "prompts",
+                "templates"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Liste tous les templates système (rag, conversation, summarization, code, extraction)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get System Template - RAG",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/prompts/templates/system/rag",
+              "path": [
+                "prompts",
+                "templates",
+                "system",
+                "rag"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Récupère le template système RAG"
+          },
+          "response": []
+        },
+        {
+          "name": "Get System Template - Conversation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/prompts/templates/system/conversation",
+              "path": [
+                "prompts",
+                "templates",
+                "system",
+                "conversation"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Récupère le template système Conversation"
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints pour récupérer les templates système"
+    },
+    {
+      "name": "4. Templates - CRUD Custom",
+      "item": [
+        {
+          "name": "Get All Templates (System + Custom)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/prompts/templates/all",
+              "path": [
+                "prompts",
+                "templates",
+                "all"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Liste TOUS les templates (5 système + templates custom)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Custom Template - Search",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"search\",\n  \"content\": \"Rechercher des informations sur {query} en utilisant les sources suivantes: {sources}. Limiter à {maxResults} résultats pertinents.\",\n  \"description\": \"Template pour effectuer des recherches ciblées\",\n  \"variables\": [\"query\", \"sources\", \"maxResults\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/prompts/templates/custom",
+              "path": [
+                "prompts",
+                "templates",
+                "custom"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Crée un template custom \u0027search\u0027 pour recherches"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Custom Template - Scraper",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"scraper\",\n  \"content\": \"Extraire les données suivantes d\u0027une page web {url}: {fields}. Format de sortie: {format}. Ignorer les éléments: {excludeSelectors}.\",\n  \"description\": \"Template pour extraire des données de pages web\",\n  \"variables\": [\"url\", \"fields\", \"format\", \"excludeSelectors\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/prompts/templates/custom",
+              "path": [
+                "prompts",
+                "templates",
+                "custom"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Crée un template custom \u0027scraper\u0027 pour web scraping"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Custom Template - Translator",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"translator\",\n  \"content\": \"Traduire le texte suivant de {sourceLang} vers {targetLang}:\\n\\nTexte: {text}\\n\\nFormat de sortie: {format}. Ton: {tone}.\",\n  \"description\": \"Template pour traduction avec contrôle du ton\",\n  \"variables\": [\"text\", \"sourceLang\", \"targetLang\", \"format\", \"tone\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/prompts/templates/custom",
+              "path": [
+                "prompts",
+                "templates",
+                "custom"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Crée un template custom \u0027translator\u0027 pour traduction"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Template by Name (Custom or System)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/prompts/templates/search",
+              "path": [
+                "prompts",
+                "templates",
+                "search"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Récupère un template par nom (custom \u0027search\u0027 ou système \u0027rag\u0027)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Custom Template",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Template mis à jour pour recherches avancées\",\n  \"content\": \"Rechercher des informations détaillées sur {query} dans les sources: {sources}. Limiter à {maxResults} résultats. Filtrer par: {filters}.\",\n  \"variables\": [\"query\", \"sources\", \"maxResults\", \"filters\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/prompts/templates/custom/search",
+              "path": [
+                "prompts",
+                "templates",
+                "custom",
+                "search"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Met à jour le template custom \u0027search\u0027"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Custom Template",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/prompts/templates/custom/search",
+              "path": [
+                "prompts",
+                "templates",
+                "custom",
+                "search"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Supprime le template custom \u0027search\u0027"
+          },
+          "response": []
+        },
+        {
+          "name": "Try to Delete System Template (Error)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/prompts/templates/custom/rag",
+              "path": [
+                "prompts",
+                "templates",
+                "custom",
+                "rag"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Tentative de supprimer un template système (doit retourner 403 Forbidden)"
+          },
+          "response": []
+        }
+      ],
+      "description": "CRUD complet pour templates personnalisés (Create, Read, Update, Delete)"
+    },
+    {
+      "name": "5. Few-Shot Examples",
+      "item": [
+        {
+          "name": "Get All Few-Shot Examples",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/prompts/examples/create",
+              "path": [
+                "prompts",
+                "examples"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Récupère tous les exemples few-shot de toutes les catégories"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Few-Shot by Category - QA",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/prompts/examples/qa",
+              "path": [
+                "prompts",
+                "examples",
+                "qa"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Récupère les exemples de la catégorie \u0027qa\u0027"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Few-Shot by Category - Classification",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/prompts/examples/classification",
+              "path": [
+                "prompts",
+                "examples",
+                "classification"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Récupère les exemples de la catégorie \u0027classification\u0027"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Few-Shot Example - QA",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"qa\",\n  \"input\": \"Quelle est la capitale de l\u0027Italie ?\",\n  \"output\": \"La capitale de l\u0027Italie est Rome.\",\n  \"context\": \"Géographie européenne\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/prompts/examples/create",
+              "path": [
+                "prompts",
+                "examples",
+                "create"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Crée un nouvel exemple few-shot pour la catégorie QA"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Few-Shot Example - Summarization",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"summarization\",\n  \"input\": \"L\u0027intelligence artificielle transforme rapidement le monde du travail, créant de nouvelles opportunités tout en soulevant des questions éthiques importantes sur l\u0027automatisation et l\u0027emploi.\",\n  \"output\": \"L\u0027IA révolutionne l\u0027emploi avec des opportunités et défis éthiques.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/prompts/examples/create",
+              "path": [
+                "prompts",
+                "examples",
+                "create"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Crée un exemple few-shot pour résumé"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Custom Few-Shot Examples - QA",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/prompts/examples/custom/qa",
+              "path": [
+                "prompts",
+                "examples",
+                "custom",
+                "qa"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Récupère uniquement les exemples custom de la catégorie \u0027qa\u0027"
+          },
+          "response": []
+        },
+        {
+          "name": "Clear Custom Examples - All",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/prompts/examples/custom",
+              "path": [
+                "prompts",
+                "examples",
+                "custom"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Supprime TOUS les exemples custom de toutes les catégories"
+          },
+          "response": []
+        },
+        {
+          "name": "Clear Custom Examples - QA Only",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/prompts/examples/custom/qa",
+              "path": [
+                "prompts",
+                "examples",
+                "custom",
+                "qa"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ]
+            },
+            "description": "Supprime uniquement les exemples custom de la catégorie \u0027qa\u0027"
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints pour gérer les exemples few-shot (système + custom)"
+    }
+  ]
+}

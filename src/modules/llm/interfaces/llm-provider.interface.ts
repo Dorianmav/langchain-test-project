@@ -1,4 +1,5 @@
 import { BaseMessage } from '@langchain/core/messages';
+import { LLMConfig } from './llm-config.interface';
 
 /**
  * Interface commune pour tous les providers LLM
@@ -33,27 +34,4 @@ export interface ILLMProvider {
    * Vérifie si le provider est disponible
    */
   healthCheck(): Promise<boolean>;
-}
-
-/**
- * Configuration commune pour les LLM
- */
-export interface LLMConfig {
-  temperature?: number;      // Créativité (0-1)
-  maxTokens?: number;        // Longueur max de réponse
-  topP?: number;             // Nucleus sampling (0-1)
-  frequencyPenalty?: number; // Pénalité de répétition
-  presencePenalty?: number;  // Pénalité de présence
-  model?: string;            // Nom du modèle
-}
-
-/**
- * Métadonnées sur la génération
- */
-export interface LLMMetadata {
-  provider: string;          // 'groq' | 'ollama'
-  model: string;             // Modèle utilisé
-  tokensUsed?: number;       // Tokens consommés
-  duration?: number;         // Durée en ms
-  cached?: boolean;          // Réponse en cache
 }

@@ -12,6 +12,7 @@ import { EmbeddingsModule } from './modules/embeddings/embeddings.module';
 import { VectorStoreModule } from './modules/vector-store/vector-store.module';
 import { DocumentLoaderModule } from './modules/document-loader/document-loader.module';
 import { RagModule } from './modules/rag/rag.module';
+import { PromptsModule } from './modules/prompts/prompts.module';
 import { AuditModule } from './common/audit.module';
 
 @Module({
@@ -44,6 +45,7 @@ import { AuditModule } from './common/audit.module';
     EmbeddingsModule,
     VectorStoreModule,
     DocumentLoaderModule,
+    PromptsModule,
     RagModule,
   ],
   controllers: [AppController],

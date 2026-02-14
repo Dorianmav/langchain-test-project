@@ -1,0 +1,54 @@
+import { IsString, IsOptional, IsBoolean, IsNumber, IsNotEmpty, Min, Max } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+/**
+ * DTO pour la création d'un prompt personnalisé
+ */
+export class CreatePromptDto {
+  @ApiProperty({
+    description: 'Type de prompt à créer (système) ou nom de template personnalisé',
+    example: 'rag',
+    examples: {
+      system: { value: 'rag', description: 'Template système RAG' },
+      custom: { value: 'search', description: 'Template personnalisé search' },
+    },
+  })
+  @IsString()
+  @IsNotEmpty()
+  type: string;
+
+  @ApiPropertyOptional({
+    description: 'Inclure des exemples few-shot',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  includeFewShot?: boolean = false;
+
+  @ApiPropertyOptional({
+    description: "Inclure l'historique de conversation",
+    example: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  includeHistory?: boolean = false;
+
+  @ApiPropertyOptional({
+    description: 'Longueur maximale pour les résumés (en mots)',
+    example: 200,
+    minimum: 50,
+    maximum: 1000,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(50)
+  @Max(1000)
+  maxLength?: number = 200;
+
+  @ApiPropertyOptional({
+    description: 'Variables personnalisées à injecter dans le prompt',
+    example: { context: 'Mon contexte', question: 'Ma question' },
+  })
+  @IsOptional()
+  variables?: Record<string, any>;
+}

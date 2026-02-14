@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { HumanMessage, AIMessage, SystemMessage } from '@langchain/core/messages';
 import { OllamaProvider } from './providers/ollama.provider';
 import { GroqProvider } from './providers/groq.provider';
-import { ILLMProvider, LLMConfig, LLMMetadata } from './interfaces/llm-provider.interface';
+import { ILLMProvider, LLMConfig, LLMMetadata } from './interfaces';
 import { LLM_PROVIDERS } from './constants/llm.constants';
 import { ChatMessageDto } from './dto/chat.dto';
 

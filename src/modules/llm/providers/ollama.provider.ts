@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ChatOllama } from '@langchain/ollama';
 import { HumanMessage, AIMessage, SystemMessage, ChatMessage } from '@langchain/core/messages';
-import { ILLMProvider, LLMConfig } from '../interfaces/llm-provider.interface';
+import { ILLMProvider, LLMConfig } from '../interfaces';
 import { DEFAULT_LLM_CONFIG } from '../constants/llm.constants';
 
 /**

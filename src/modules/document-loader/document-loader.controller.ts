@@ -11,7 +11,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiResponse, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { DocumentLoaderService } from './document-loader.service';
-import { ProcessDocumentDto, DocumentResponseDto } from './dto';
+import { ProcessDocumentDto, UploadedDocumentResponseDto } from './dto';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -119,10 +119,10 @@ export class DocumentLoaderController {
   @ApiResponse({
     status: 200,
     description: 'Document processed successfully',
-    type: DocumentResponseDto,
+    type: UploadedDocumentResponseDto,
   })
   @ApiResponse({ status: 400, description: 'Invalid file path or configuration' })
-  async processDocument(@Body() dto: ProcessDocumentDto): Promise<DocumentResponseDto> {
+  async processDocument(@Body() dto: ProcessDocumentDto): Promise<UploadedDocumentResponseDto> {
     this.logger.log(`⚙️  Processing document: ${dto.filePath}`);
 
     // Charger et découper le document
@@ -138,7 +138,7 @@ export class DocumentLoaderController {
     // Générer les IDs des chunks
     const chunkIds = chunks.map((_, index) => `chunk_${uuidv4()}_${index}`);
 
-    const response: DocumentResponseDto = {
+    const response: UploadedDocumentResponseDto = {
       id: `doc_${uuidv4()}`,
       fileName: chunks[0]?.metadata?.source || dto.filePath,
       fileType: this.documentLoaderService['getFileExtension'](dto.filePath),
