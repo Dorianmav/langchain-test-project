@@ -1,9 +1,9 @@
 import { Injectable, Logger, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { PromptTemplate } from '@langchain/core/prompts';
 import { CustomTemplate } from '../interfaces';
 import { CreateTemplateDto, UpdateTemplateDto, TemplateResponse, TemplateListResponse } from '../dto';
 import { PromptType } from '../dto/prompt-enums.dto';
-import { DEFAULT_TEMPLATES } from '../../../config/prompts/system-prompts';
+import { TemplateValidationService } from './template-validation.service';
+import { SystemTemplateService } from './system-template.service';
 
 /**
  * Service dédié à la gestion des templates personnalisés
@@ -18,6 +18,11 @@ export class CustomTemplateService {
   
   // Liste des noms de templates système (non modifiables)
   private readonly SYSTEM_TEMPLATE_NAMES = ['rag', 'conversation', 'summarization', 'code', 'extraction'];
+
+  constructor(
+    private readonly validationService: TemplateValidationService,
+    private readonly systemTemplateService: SystemTemplateService,
+  ) {}
 
   /**
    * Vérifie si un nom correspond à un template système
@@ -66,18 +71,7 @@ export class CustomTemplateService {
     }
 
     // Valider la syntaxe du template (accolades équilibrées)
-    this.validateTemplateSyntax(dto.content);
-
-    // Extraire les variables du template et vérifier la cohérence
-    const extractedVars = this.extractVariables(dto.content);
-    const missingVars = dto.variables.filter(v => !extractedVars.includes(v));
-    const extraVars = extractedVars.filter(v => !dto.variables.includes(v));
-
-    if (missingVars.length > 0 || extraVars.length > 0) {
-      throw new BadRequestException(
-        `Variables incohérentes. Manquantes dans le template: [${missingVars.join(', ')}]. Non déclarées: [${extraVars.join(', ')}]`
-      );
-    }
+    this.validationService.validateTemplate(dto.content, dto.variables);
 
     // Créer le template
     const now = new Date();
@@ -167,20 +161,7 @@ export class CustomTemplateService {
     const updatedVariables = dto.variables ?? existingTemplate.variables;
 
     // Si le contenu change, valider la syntaxe
-    if (dto.content) {
-      this.validateTemplateSyntax(updatedContent);
-    }
-
-    // Vérifier la cohérence des variables
-    const extractedVars = this.extractVariables(updatedContent);
-    const missingVars = updatedVariables.filter(v => !extractedVars.includes(v));
-    const extraVars = extractedVars.filter(v => !updatedVariables.includes(v));
-
-    if (missingVars.length > 0 || extraVars.length > 0) {
-      throw new BadRequestException(
-        `Variables incohérentes. Manquantes: [${missingVars.join(', ')}]. Non déclarées: [${extraVars.join(', ')}]`
-      );
-    }
+    this.validationService.validateTemplate(updatedContent, updatedVariables);
 
     // Mettre à jour le template
     const updatedTemplate: CustomTemplate = {
@@ -225,112 +206,34 @@ export class CustomTemplateService {
   // ==================== MÉTHODES UTILITAIRES ====================
 
   /**
-   * Valide la syntaxe d'un template (accolades équilibrées)
-   */
-  private validateTemplateSyntax(template: string): void {
-    let openBraces = 0;
-    for (const char of template) {
-      if (char === '{') openBraces++;
-      if (char === '}') openBraces--;
-      if (openBraces < 0) {
-        throw new BadRequestException('Syntaxe invalide: accolades fermantes sans ouverture correspondante');
-      }
-    }
-    if (openBraces !== 0) {
-      throw new BadRequestException('Syntaxe invalide: accolades non équilibrées');
-    }
-
-    // Tester avec LangChain
-    try {
-      PromptTemplate.fromTemplate(template);
-    } catch (error) {
-      throw new BadRequestException(`Syntaxe LangChain invalide: ${error.message}`);
-    }
-  }
-
-  /**
-   * Extrait les variables d'un template
-   */
-  private extractVariables(template: string): string[] {
-    const regex = /\{([^}]+)\}/g;
-    const variables: string[] = [];
-    let match;
-
-    while ((match = regex.exec(template)) !== null) {
-      if (!variables.includes(match[1])) {
-        variables.push(match[1]);
-      }
-    }
-
-    return variables;
-  }
-
-  /**
    * Récupère un template système par nom
    */
   private getSystemTemplateByName(name: string): TemplateResponse {
-    const typeMap: Record<string, { type: PromptType; description: string; variables: string[] }> = {
-      rag: {
-        type: PromptType.RAG,
-        description: 'Template pour RAG avec contexte et question',
-        variables: ['context', 'question'],
-      },
-      conversation: {
-        type: PromptType.CONVERSATION,
-        description: 'Template pour conversations avec ou sans historique',
-        variables: ['message', 'history?'],
-      },
-      summarization: {
-        type: PromptType.SUMMARIZATION,
-        description: 'Template pour résumer du texte avec longueur maximale',
-        variables: ['text', 'maxLength'],
-      },
-      code: {
-        type: PromptType.CODE_EXPLANATION,
-        description: 'Template pour expliquer du code dans un langage donné',
-        variables: ['code', 'language'],
-      },
-      extraction: {
-        type: PromptType.EXTRACTION,
-        description: 'Template pour extraire des informations structurées',
-        variables: ['text', 'format'],
-      },
+    // Mapper le nom vers PromptType
+    const typeMap: Record<string, PromptType> = {
+      rag: PromptType.RAG,
+      conversation: PromptType.CONVERSATION,
+      summarization: PromptType.SUMMARIZATION,
+      code: PromptType.CODE_EXPLANATION,
+      extraction: PromptType.EXTRACTION,
     };
 
-    const systemTemplate = typeMap[name.toLowerCase()];
-    if (!systemTemplate) {
+    const promptType = typeMap[name.toLowerCase()];
+    if (!promptType) {
       throw new NotFoundException(`Template système "${name}" introuvable`);
     }
 
+    const info = this.systemTemplateService.getTemplateInfo(promptType);
+
     return {
       name,
-      content: this.getDefaultTemplateContent(systemTemplate.type),
-      description: systemTemplate.description,
-      variables: systemTemplate.variables,
+      content: info.content,
+      description: info.description,
+      variables: info.variables,
       isSystem: true,
       createdAt: new Date(0),
       updatedAt: new Date(0),
     };
-  }
-
-  /**
-   * Récupère le contenu d'un template système
-   */
-  private getDefaultTemplateContent(type: PromptType): string {
-    switch (type) {
-      case PromptType.RAG:
-        return DEFAULT_TEMPLATES.rag;
-      case PromptType.CONVERSATION:
-        return DEFAULT_TEMPLATES.conversation;
-      case PromptType.SUMMARIZATION:
-        return DEFAULT_TEMPLATES.summarization;
-      case PromptType.CODE_EXPLANATION:
-        return DEFAULT_TEMPLATES.codeExplanation;
-      case PromptType.EXTRACTION:
-        return DEFAULT_TEMPLATES.extraction;
-      default:
-        throw new BadRequestException(`Type de prompt inconnu: ${type}`);
-    }
   }
 
   /**

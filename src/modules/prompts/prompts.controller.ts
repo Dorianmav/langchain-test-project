@@ -1,6 +1,7 @@
 import { Controller, Post, Get, Delete, Patch, Body, Param, Logger } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { PromptService } from './prompts.service';
+import { PromptUtilsService } from './services/prompt-utils.service';
 import {
   PromptType,
   FewShotCategory,
@@ -27,7 +28,10 @@ import {
 export class PromptsController {
   private readonly logger = new Logger(PromptsController.name);
 
-  constructor(private readonly promptService: PromptService) {}
+  constructor(
+    private readonly promptService: PromptService,
+    private readonly promptUtilsService: PromptUtilsService,
+  ) {}
 
   /**
    * Crée un prompt selon le type et les options
@@ -333,7 +337,7 @@ export class PromptsController {
     this.logger.log('POST /prompts/extract-variables');
     return {
       template: body.template,
-      variables: this.promptService.extractVariables(body.template),
+      variables: this.promptUtilsService.extractVariables(body.template),
     };
   }
 

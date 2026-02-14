@@ -6,8 +6,6 @@ import {
 import {
   PromptFactory,
   createAdvancedRagPrompt,
-  validatePrompt,
-  composePrompts,
   DEFAULT_TEMPLATES,
 } from '../../config/prompts/system-prompts';
 import { 
@@ -30,23 +28,31 @@ import {
   TemplateResponse,
   TemplateListResponse,
 } from './dto/index';
-import { CustomTemplateService } from './services';
+import {
+  CustomTemplateService,
+  FewShotExampleService,
+  PromptCacheService,
+  PromptUtilsService,
+  SystemTemplateService,
+} from './services';
 
 /**
  * Service de gestion centralisée des prompts
  * 
- * Fournit une API pour créer, formater, valider et composer des prompts
- * avec support du caching et des templates LangChain
+ * Orchestre les différents services spécialisés pour fournir une API unifiée
+ * pour la gestion des prompts, templates et exemples few-shot
  */
 @Injectable()
 export class PromptService {
   private readonly logger = new Logger(PromptService.name);
-  private readonly promptCache = new Map<string, ChatPromptTemplate | PromptTemplate>();
-  
-  // Stockage en mémoire des exemples few-shot personnalisés
-  private customExamples = new Map<FewShotCategory, FewShotExample[]>();
 
-  constructor(private readonly customTemplateService: CustomTemplateService) {}
+  constructor(
+    private readonly customTemplateService: CustomTemplateService,
+    private readonly fewShotExampleService: FewShotExampleService,
+    private readonly cacheService: PromptCacheService,
+    private readonly utilsService: PromptUtilsService,
+    private readonly systemTemplateService: SystemTemplateService,
+  ) {}
 
   /**
    * Crée un prompt selon le type et les options
@@ -55,12 +61,17 @@ export class PromptService {
     this.logger.log(`Creating prompt of type: ${dto.type}`);
 
     try {
-      const cacheKey = this.generateCacheKey(dto);
+      const cacheKey = this.cacheService.generateKey({
+        type: dto.type,
+        includeFewShot: dto.includeFewShot,
+        includeHistory: dto.includeHistory,
+        maxLength: dto.maxLength,
+      });
 
       // Vérifier le cache avec préfixe custom/system
       const customTemplate = this.customTemplateService.getCustomTemplate(dto.type);
       const finalCacheKey = customTemplate ? `custom:${cacheKey}` : cacheKey;
-      let prompt = this.promptCache.get(finalCacheKey);
+      let prompt = this.cacheService.get(finalCacheKey);
 
       if (!prompt) {
         if (customTemplate) {
@@ -85,10 +96,7 @@ export class PromptService {
         }
 
         // Mettre en cache
-        this.promptCache.set(finalCacheKey, prompt);
-        this.logger.debug(`Prompt cached with key: ${finalCacheKey}`);
-      } else {
-        this.logger.debug(`Prompt loaded from cache: ${finalCacheKey}`);
+        this.cacheService.set(finalCacheKey, prompt);
       }
 
       // Formater le prompt si des variables sont fournies
@@ -137,46 +145,21 @@ export class PromptService {
    * Formate un prompt avec des variables
    */
   async formatPrompt(dto: FormatPromptDto): Promise<string> {
-    this.logger.log('Formatting prompt with variables');
-
-    try {
-      const template = PromptTemplate.fromTemplate(dto.template);
-      return await template.format(dto.variables || {});
-    } catch (error) {
-      this.logger.error(`Error formatting prompt: ${error.message}`);
-      throw new BadRequestException(`Erreur de formatage: ${error.message}`);
-    }
+    return this.utilsService.formatPrompt(dto);
   }
 
   /**
    * Valide un prompt template
    */
   validatePromptTemplate(dto: ValidatePromptDto): PromptValidationResponse {
-    this.logger.log('Validating prompt template');
+    return this.utilsService.validatePromptTemplate(dto);
+  }
 
-    try {
-      const result = validatePrompt(dto.template, dto.requiredVariables);
-
-      if (!result.valid) {
-        return {
-          valid: false,
-          missingVariables: result.missingVariables,
-          error: `Variables manquantes: ${result.missingVariables.join(', ')}`,
-        };
-      }
-
-      return {
-        valid: true,
-        missingVariables: [],
-      };
-    } catch (error) {
-      this.logger.error(`Error validating prompt: ${error.message}`);
-      return {
-        valid: false,
-        missingVariables: [],
-        error: error.message,
-      };
-    }
+  /**
+   * Extrait les variables d'un template
+   */
+  extractVariables(template: string): string[] {
+    return this.utilsService.extractVariables(template);
   }
 
   /**
@@ -216,75 +199,42 @@ export class PromptService {
    */
   getDefaultTemplate(type: PromptType): string {
     this.logger.log(`Retrieving default template for type: ${type}`);
-
-    switch (type) {
-      case PromptType.RAG:
-        return DEFAULT_TEMPLATES.rag;
-      case PromptType.CONVERSATION:
-        return DEFAULT_TEMPLATES.conversation;
-      case PromptType.SUMMARIZATION:
-        return DEFAULT_TEMPLATES.summarization;
-      case PromptType.CODE_EXPLANATION:
-        return DEFAULT_TEMPLATES.codeExplanation;
-      case PromptType.EXTRACTION:
-        return DEFAULT_TEMPLATES.extraction;
-      default:
-        throw new BadRequestException(`Type de prompt inconnu: ${type}`);
-    }
+    return this.systemTemplateService.getTemplateContent(type);
   }
 
   /**
    * Retourne la description d'un type de template
    */
   private getTemplateDescription(type: PromptType): string {
-    const descriptions = {
-      [PromptType.RAG]: 'Template pour RAG avec contexte et question',
-      [PromptType.CONVERSATION]: 'Template pour conversations avec ou sans historique',
-      [PromptType.SUMMARIZATION]: 'Template pour résumer du texte avec longueur maximale',
-      [PromptType.CODE_EXPLANATION]: 'Template pour expliquer du code dans un langage donné',
-      [PromptType.EXTRACTION]: 'Template pour extraire des informations structurées',
-    };
-    return descriptions[type] || 'Template système';
+    return this.systemTemplateService.getTemplateDescription(type);
   }
 
   /**
    * Retourne les variables requises pour un type de template
    */
   private getTemplateVariables(type: PromptType): string[] {
-    const variables = {
-      [PromptType.RAG]: ['context', 'question'],
-      [PromptType.CONVERSATION]: ['message', 'history?'],
-      [PromptType.SUMMARIZATION]: ['text', 'maxLength'],
-      [PromptType.CODE_EXPLANATION]: ['code', 'language'],
-      [PromptType.EXTRACTION]: ['text', 'format'],
-    };
-    return variables[type] || [];
+    return this.systemTemplateService.getTemplateVariables(type);
   }
 
   /**
    * Compose plusieurs templates en un seul
    */
   composeTemplates(...templates: string[]): string {
-    this.logger.log(`Composing ${templates.length} templates`);
-    return composePrompts(...templates);
+    return this.utilsService.composeTemplates(...templates);
   }
 
   /**
    * Vide le cache des prompts
    */
   clearCache(): void {
-    this.logger.log('Clearing prompt cache');
-    this.promptCache.clear();
+    this.cacheService.clear();
   }
 
   /**
    * Récupère les statistiques du cache
    */
   getCacheStats() {
-    return {
-      size: this.promptCache.size,
-      keys: Array.from(this.promptCache.keys()),
-    };
+    return this.cacheService.getStats();
   }
 
   /**
@@ -305,106 +255,31 @@ export class PromptService {
   }
 
   /**
-   * Génère une clé de cache basée sur les options du prompt
-   */
-  private generateCacheKey(dto: CreatePromptDto): string {
-    return `${dto.type}_${dto.includeFewShot || false}_${dto.includeHistory || false}_${dto.maxLength || 200}`;
-  }
-
-  /**
-   * Extrait les variables d'un template
-   */
-  extractVariables(template: string): string[] {
-    const regex = /\{([^}]+)\}/g;
-    const variables: string[] = [];
-    let match;
-
-    while ((match = regex.exec(template)) !== null) {
-      if (!variables.includes(match[1])) {
-        variables.push(match[1]);
-      }
-    }
-
-    return variables;
-  }
-
-  /**
    * Crée un prompt personnalisé à partir d'un template brut
    */
   async createCustomPrompt(template: string, variables: Record<string, any>): Promise<string> {
-    this.logger.log('Creating custom prompt from template');
-
-    try {
-      const promptTemplate = PromptTemplate.fromTemplate(template);
-      return await promptTemplate.format(variables);
-    } catch (error) {
-      this.logger.error(`Error creating custom prompt: ${error.message}`);
-      throw new BadRequestException(`Erreur de création: ${error.message}`);
-    }
+    return this.utilsService.createCustomPrompt(template, variables);
   }
 
   /**
    * Crée un exemple few-shot personnalisé
    */
   createFewShotExample(dto: CreateFewShotExampleDto): CreateFewShotExampleResponse {
-    this.logger.log(`Creating few-shot example for category: ${dto.category}`);
-
-    try {
-      const existingExamples = this.customExamples.get(dto.category) || [];
-
-      const newExample: FewShotExample = {
-        input: dto.input,
-        output: dto.output,
-      };
-
-      if (dto.context) {
-        newExample.context = dto.context;
-      }
-
-      existingExamples.push(newExample);
-      this.customExamples.set(dto.category, existingExamples);
-
-      this.logger.log(
-        `Few-shot example created. Total in ${dto.category}: ${existingExamples.length}`
-      );
-
-      return {
-        message: `Exemple few-shot créé avec succès dans la catégorie ${dto.category}`,
-        example: newExample,
-        category: dto.category,
-        totalExamplesInCategory: existingExamples.length,
-      };
-    } catch (error) {
-      this.logger.error(`Error creating few-shot example: ${error.message}`);
-      throw new BadRequestException(`Erreur lors de la création: ${error.message}`);
-    }
+    return this.fewShotExampleService.createFewShotExample(dto);
   }
 
   /**
    * Récupère les exemples personnalisés d'une catégorie
    */
   getCustomFewShotExamples(category: FewShotCategory): FewShotExample[] {
-    return this.customExamples.get(category) || [];
+    return this.fewShotExampleService.getCustomFewShotExamples(category);
   }
 
   /**
    * Supprime les exemples personnalisés
    */
   clearCustomExamples(category?: FewShotCategory): number {
-    if (category) {
-      const count = this.customExamples.get(category)?.length || 0;
-      this.customExamples.delete(category);
-      this.logger.log(`Cleared ${count} custom examples from ${category}`);
-      return count;
-    } else {
-      let totalCount = 0;
-      this.customExamples.forEach((examples) => {
-        totalCount += examples.length;
-      });
-      this.customExamples.clear();
-      this.logger.log(`Cleared all ${totalCount} custom examples`);
-      return totalCount;
-    }
+    return this.fewShotExampleService.clearCustomExamples(category);
   }
 
   // ==================== CRUD TEMPLATES PERSONNALISÉS ====================
@@ -443,6 +318,5 @@ export class PromptService {
   deleteCustomTemplate(name: string): { message: string; deletedTemplate: string } {
     return this.customTemplateService.deleteCustomTemplate(name);
   }
-
 
 }
