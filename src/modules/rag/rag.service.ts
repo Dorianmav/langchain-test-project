@@ -4,6 +4,7 @@ import { DocumentLoaderService } from '../document-loader/document-loader.servic
 import { EmbeddingsService } from '../embeddings/embeddings.service';
 import { VectorStoreService } from '../vector-store/vector-store.service';
 import { LLMService } from '../llm/llm.service';
+import { PromptService } from '../prompts/prompts.service';
 import { RAGResult, RAGPipelineConfig } from './interfaces/rag-pipeline.interface';
 import { IngestDocumentDto, QueryDto, IngestResponseDto, RAGResponseDto } from './dto';
 import { v4 as uuidv4 } from 'uuid';
@@ -22,6 +23,7 @@ export class RagService {
     private readonly embeddings: EmbeddingsService,
     private readonly vectorStore: VectorStoreService,
     private readonly llm: LLMService,
+    private readonly promptService: PromptService,
   ) {}
 
   /**
@@ -115,7 +117,9 @@ export class RagService {
   private async generateAnswer(
     query: string,
     context: Document[],
-    temperature: number = 0.7
+    temperature: number = 0.7,
+    includeFewShot: boolean = false,
+    useAdvancedPrompt: boolean = false,
   ): Promise<{ answer: string; tokensUsed?: number }> {
     this.logger.log('🤖 Generating answer with LLM...');
 
@@ -124,21 +128,30 @@ export class RagService {
       .map((doc, index) => `[Document ${index + 1}]\n${doc.pageContent}`)
       .join('\n\n---\n\n');
 
-    // Prompt RAG
-    const prompt = `Tu es un assistant IA qui répond aux questions en te basant UNIQUEMENT sur le contexte fourni.
+    let prompt: string;
 
-Contexte:
-${contextText}
-
-Question: ${query}
-
-Instructions:
-- Réponds de manière précise et concise
-- Base-toi UNIQUEMENT sur les informations du contexte
-- Si la réponse n'est pas dans le contexte, dis "Je ne trouve pas cette information dans les documents fournis"
-- Cite les sources si possible
-
-Réponse:`;
+    if (useAdvancedPrompt) {
+      // Utiliser le prompt RAG avancé avec métadonnées
+      this.logger.log('📝 Using advanced RAG prompt with metadata');
+      prompt = await this.promptService.createAdvancedRagPrompt({
+        context: contextText,
+        question: query,
+        source_count: context.length,
+        min_score: 0.7,
+      });
+    } else {
+      // Utiliser le prompt RAG standard ou avec few-shot
+      this.logger.log(`📝 Using ${includeFewShot ? 'few-shot' : 'standard'} RAG prompt`);
+      const promptResponse = await this.promptService.createPrompt({
+        type: 'rag' as any,
+        includeFewShot,
+        variables: {
+          context: contextText,
+          question: query,
+        },
+      });
+      prompt = promptResponse.prompt;
+    }
 
     // Générer la réponse
     const { response } = await this.llm.generate(prompt, { temperature });
@@ -157,6 +170,7 @@ Réponse:`;
   async query(dto: QueryDto): Promise<RAGResponseDto> {
     const totalStartTime = Date.now();
     this.logger.log(`\n🎯 RAG Query: "${dto.query}"`);
+    this.logger.log(`⚙️  Options: few-shot=${dto.includeFewShot || false}, advanced=${dto.useAdvancedPrompt || false}`);
 
     try {
       // Phase 1: Retrieval
@@ -168,12 +182,14 @@ Réponse:`;
       );
       const retrievalTime = Date.now() - retrievalStartTime;
 
-      // Phase 2: Generation
+      // Phase 2: Generation (avec options de prompt)
       const generationStartTime = Date.now();
       const { answer, tokensUsed } = await this.generateAnswer(
         dto.query,
         documents,
-        dto.temperature || 0.7
+        dto.temperature || 0.7,
+        dto.includeFewShot || false,
+        dto.useAdvancedPrompt || false,
       );
       const generationTime = Date.now() - generationStartTime;
 

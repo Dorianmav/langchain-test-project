@@ -66,4 +66,24 @@ export class QueryDto {
   @IsOptional()
   @IsBoolean()
   includeSourceDocuments?: boolean;
+
+  @ApiProperty({
+    description: 'Inclure des exemples few-shot dans le prompt',
+    example: false,
+    default: false,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  includeFewShot?: boolean;
+
+  @ApiProperty({
+    description: 'Utiliser le prompt RAG avancé avec métadonnées',
+    example: false,
+    default: false,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  useAdvancedPrompt?: boolean;
 }

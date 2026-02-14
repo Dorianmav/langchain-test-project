@@ -5,6 +5,7 @@ import { DocumentLoaderModule } from '../document-loader/document-loader.module'
 import { EmbeddingsModule } from '../embeddings/embeddings.module';
 import { VectorStoreModule } from '../vector-store/vector-store.module';
 import { LLMModule } from '../llm/llm.module';
+import { PromptsModule } from '../prompts/prompts.module';
 
 /**
  * Module RAG - Retrieval-Augmented Generation
@@ -14,6 +15,7 @@ import { LLMModule } from '../llm/llm.module';
  * - Embeddings : Génération de vecteurs sémantiques
  * - VectorStore : Stockage et recherche de similarité
  * - LLM : Génération de réponses contextualisées
+ * - Prompts : Gestion des templates de prompts et few-shot learning
  */
 @Module({
   imports: [
@@ -21,6 +23,7 @@ import { LLMModule } from '../llm/llm.module';
     EmbeddingsModule,      // Pour générer les embeddings
     VectorStoreModule,     // Pour stocker et rechercher des vecteurs
     LLMModule,             // Pour générer les réponses
+    PromptsModule,         // Pour gérer les prompts et templates
   ],
   controllers: [RagController],
   providers: [RagService],
