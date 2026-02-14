@@ -1,6 +1,6 @@
 import { IsString, IsOptional, IsNumber, Min, Max, IsObject, IsBoolean } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { DocumentResponseDto } from './document.dto';
+import { VectorStoreDocumentDto } from './document.dto';
 
 /**
  * DTO pour la recherche de similarité
@@ -51,8 +51,8 @@ export class SearchDto {
  * DTO de réponse pour la recherche
  */
 export class SearchResponseDto {
-  @ApiProperty({ type: [DocumentResponseDto] })
-  documents: DocumentResponseDto[];
+  @ApiProperty({ type: [VectorStoreDocumentDto] })
+  documents: VectorStoreDocumentDto[];
 
   @ApiProperty({ example: 'Quelle est la capitale de la France ?' })
   query: string;

@@ -74,9 +74,9 @@ export class ProcessDocumentDto {
 }
 
 /**
- * DTO de réponse après traitement d'un document
+ * DTO de réponse après upload et traitement d'un document
  */
-export class DocumentResponseDto {
+export class UploadedDocumentResponseDto {
   @ApiProperty({ 
     description: 'ID unique du document',
     example: 'doc_a1b2c3d4e5f6' 

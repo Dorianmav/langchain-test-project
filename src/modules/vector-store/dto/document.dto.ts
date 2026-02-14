@@ -26,9 +26,9 @@ export class DocumentDto {
 }
 
 /**
- * DTO de réponse pour un document trouvé
+ * DTO de réponse pour un document trouvé dans le vector store
  */
-export class DocumentResponseDto {
+export class VectorStoreDocumentDto {
   @ApiProperty({ example: 'doc_123' })
   id?: string;
 
