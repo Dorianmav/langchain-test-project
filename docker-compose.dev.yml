@@ -37,6 +37,7 @@ services:
 
       # Search
       - TAVILY_API_KEY=${TAVILY_API_KEY}
+      - SEARXNG_URL=http://searxng:8080
 
       # Redis
       - REDIS_HOST=redis
@@ -56,6 +57,7 @@ services:
       - qdrant
       - ollama
       - redis
+      - searxng
 
     networks:
       - rag-network
@@ -104,6 +106,18 @@ services:
       - "6380:6379"
     volumes:
       - ./data/cache/redis:/data
+    networks:
+      - rag-network
+
+  searxng:
+    image: searxng/searxng:latest
+    container_name: rag-searxng-dev
+    ports:
+      - "8888:8080"
+    volumes:
+      - ./docker/searxng:/etc/searxng:rw
+    environment:
+      - SEARXNG_BASE_URL=http://localhost:8888/
     networks:
       - rag-network
 

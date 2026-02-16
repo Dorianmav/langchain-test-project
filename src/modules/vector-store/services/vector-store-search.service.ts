@@ -1,23 +1,23 @@
-import { Injectable, Logger, Inject } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import type { Cache } from 'cache-manager';
+import { Injectable, Logger } from '@nestjs/common';
+import { RedisService } from '../../../common/cache/redis.service';
 import { IVectorStoreProvider } from '../interfaces/vector-store-provider.interface';
 import { EmbeddingsService } from '../../embeddings/embeddings.service';
 
 /**
- * Service responsable de la recherche de similarité avec cache
+ * Service responsable de la recherche de similarité avec cache Redis
  */
 @Injectable()
 export class VectorStoreSearchService {
   private readonly logger = new Logger(VectorStoreSearchService.name);
+  private readonly namespace = 'embeddings';
 
   constructor(
     private embeddingsService: EmbeddingsService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly redisService: RedisService,
   ) {}
 
   /**
-   * Recherche par similarité avec cache
+   * Recherche par similarité avec cache Redis (namespace 'embeddings:')
    */
   async similaritySearch(
     provider: IVectorStoreProvider,
@@ -42,11 +42,11 @@ export class VectorStoreSearchService {
       cached?: boolean;
     };
   }> {
-    // Générer une clé de cache
-    const cacheKey = `search:${query}:${k}:${JSON.stringify(filter)}:${includeScores}`;
+    // Générer une clé de cache (sans namespace, géré par RedisService)
+    const cacheKey = `${collectionName}:${query}:${k}:${JSON.stringify(filter)}:${includeScores}`;
     
-    // Vérifier le cache
-    const cached = await this.cacheManager.get(cacheKey);
+    // Vérifier le cache Redis
+    const cached = await this.redisService.get(this.namespace, cacheKey);
     if (cached) {
       this.logger.debug(`✅ Cache hit for query: "${query}"`);
       return {
@@ -98,8 +98,8 @@ export class VectorStoreSearchService {
         },
       };
 
-      // Mettre en cache le résultat (5 minutes)
-      await this.cacheManager.set(cacheKey, response, 300000);
+      // Mettre en cache le résultat avec Redis (5 minutes = 300 secondes)
+      await this.redisService.set(this.namespace, cacheKey, response, 300);
 
       return response;
     } catch (error) {
