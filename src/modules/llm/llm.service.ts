@@ -1,24 +1,29 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HumanMessage, AIMessage, SystemMessage } from '@langchain/core/messages';
+import { RedisService } from '../../common/cache/redis.service';
 import { OllamaProvider } from './providers/ollama.provider';
 import { GroqProvider } from './providers/groq.provider';
 import { ILLMProvider, LLMConfig, LLMMetadata } from './interfaces';
 import { LLM_PROVIDERS } from './constants/llm.constants';
 import { ChatMessageDto } from './dto/chat.dto';
+import * as crypto from 'crypto';
 
 /**
- * Service principal LLM avec pattern Factory
+ * Service principal LLM avec pattern Factory et cache Redis
  * Gère automatiquement le choix du provider (Ollama par défaut, Groq en fallback)
+ * Cache les réponses LLM avec namespace 'llm:*' pour optimiser performances
  */
 @Injectable()
 export class LLMService {
   private readonly logger = new Logger(LLMService.name);
+  private readonly namespace = 'llm';
   private currentProvider: ILLMProvider;
   private providerName: string;
 
   constructor(
     private configService: ConfigService,
+    private readonly redisService: RedisService,
     private ollamaProvider: OllamaProvider,
     private groqProvider: GroqProvider,
   ) {
@@ -64,10 +69,31 @@ export class LLMService {
   }
 
   /**
-   * Génération simple
+   * Génération simple avec cache Redis (namespace 'llm:')
    */
   async generate(prompt: string, config?: LLMConfig): Promise<{ response: string; metadata: LLMMetadata }> {
     const startTime = Date.now();
+
+    // Générer clé de cache basée sur prompt + config
+    const cacheKey = this.generateCacheKey(prompt, config);
+    
+    // Vérifier cache Redis
+    const cached = await this.redisService.get<{ response: string; metadata: LLMMetadata }>(
+      this.namespace, 
+      cacheKey
+    );
+
+    if (cached) {
+      this.logger.debug(`✅ LLM cache hit for prompt hash: ${cacheKey.substring(0, 16)}...`);
+      return {
+        ...cached,
+        metadata: {
+          ...cached.metadata,
+          cached: true,
+          duration: Date.now() - startTime,
+        },
+      };
+    }
 
     try {
       const response = await this.currentProvider.generate(prompt, config);
@@ -78,11 +104,34 @@ export class LLMService {
         duration: Date.now() - startTime,
       };
 
-      return { response, metadata };
+      const result = { response, metadata };
+
+      // Mettre en cache (1 heure = 3600 secondes)
+      await this.redisService.set(this.namespace, cacheKey, result, 3600);
+
+      return result;
     } catch (error) {
       this.logger.error('Generation failed:', error);
       throw error;
     }
+  }
+
+  /**
+   * Génère une clé de cache unique basée sur le prompt et la config
+   */
+  private generateCacheKey(prompt: string, config?: LLMConfig): string {
+    const configStr = JSON.stringify({
+      model: config?.model,
+      temperature: config?.temperature,
+      maxTokens: config?.maxTokens,
+    });
+    
+    const hash = crypto
+      .createHash('sha256')
+      .update(prompt + configStr)
+      .digest('hex');
+    
+    return hash;
   }
 
   /**
