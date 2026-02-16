@@ -1,8 +1,8 @@
 {
   "info": {
     "_postman_id": "9fc94022-4099-44e8-a33c-e2a15fbd79c2",
-    "name": "LangChain RAG NestJS API 2",
-    "description": "Collection complète pour l\u0027API LangChain RAG avec NestJS - 30 endpoints",
+    "name": "LangChain RAG NestJS API - Complete Collection",
+    "description": "Collection complète pour l'API LangChain RAG avec NestJS - Redis Cache + SearXNG + Vector Store + RAG",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "28161110"
   },
@@ -15,7 +15,648 @@
   ],
   "item": [
     {
-      "name": "1. Prompts - Création",
+      "name": "0. Health Check",
+      "item": [
+        {
+          "name": "App Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Vérifie que l'API est opérationnelle"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "1. Document Loader",
+      "item": [
+        {
+          "name": "Upload Document",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "metadata",
+                  "value": "{\"category\": \"documentation\", \"author\": \"Test User\"}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/documents/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["documents", "upload"]
+            },
+            "description": "Upload un fichier (PDF, TXT, MD, JSON, CSV) - Max 10MB"
+          },
+          "response": []
+        },
+        {
+          "name": "Process Document",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filePath\": \"uploads/your-file.txt\",\n  \"chunkSize\": 1000,\n  \"chunkOverlap\": 200,\n  \"metadata\": {\n    \"category\": \"documentation\",\n    \"source\": \"test\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/documents/process",
+              "host": ["{{baseUrl}}"],
+              "path": ["documents", "process"]
+            },
+            "description": "Charge et découpe un document en chunks"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Supported Types",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/documents/supported-types",
+              "host": ["{{baseUrl}}"],
+              "path": ["documents", "supported-types"]
+            },
+            "description": "Liste des types de fichiers supportés"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Vector Store",
+      "item": [
+        {
+          "name": "Add Documents",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documents\": [\n    {\n      \"content\": \"LangChain est un framework pour développer des applications alimentées par des modèles de langage.\",\n      \"metadata\": {\n        \"source\": \"documentation\",\n        \"category\": \"intro\"\n      }\n    },\n    {\n      \"content\": \"Redis est une base de données en mémoire utilisée pour le cache.\",\n      \"metadata\": {\n        \"source\": \"documentation\",\n        \"category\": \"database\"\n      }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vector-store/documents",
+              "host": ["{{baseUrl}}"],
+              "path": ["vector-store", "documents"]
+            },
+            "description": "Ajoute des documents au vector store avec embeddings\nPropriété: 'content' (pas 'pageContent')\nPas de 'collectionName' (collection par défaut)"
+          },
+          "response": []
+        },
+        {
+          "name": "Search Documents",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Qu'est-ce que LangChain ?\",\n  \"k\": 5,\n  \"includeScores\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vector-store/search",
+              "host": ["{{baseUrl}}"],
+              "path": ["vector-store", "search"]
+            },
+            "description": "Recherche sémantique dans le vector store (avec cache Redis namespace: embeddings:*)\nPas de 'collectionName' requis"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Documents",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ids\": [],  \n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vector-store/documents",
+              "host": ["{{baseUrl}}"],
+              "path": ["vector-store", "documents"]
+            },
+            "description": "Supprime tous les documents de la collection par défaut\nPas de body requis"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Document Count",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vector-store/count",
+              "host": ["{{baseUrl}}"],
+              "path": ["vector-store", "count"]
+            },
+            "description": "Compte les documents dans la collection par défaut"
+          },
+          "response": []
+        },
+        {
+          "name": "List Documents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vector-store/documents/list?limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["vector-store", "documents", "list"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Liste les documents de la collection par défaut"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Vector Store Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vector-store/info",
+              "host": ["{{baseUrl}}"],
+              "path": ["vector-store", "info"]
+            },
+            "description": "Informations sur le vector store (type, dimensions)"
+          },
+          "response": []
+        },
+        {
+          "name": "Vector Store Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vector-store/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["vector-store", "health"]
+            },
+            "description": "Vérifie la santé du vector store"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Document",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Contenu mis à jour sur LangChain et ses fonctionnalités avancées.\",\n  \"metadata\": {\n    \"source\": \"documentation\",\n    \"updated\": true\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vector-store/documents/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["vector-store", "documents", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "document-id"
+                }
+              ]
+            },
+            "description": "Met à jour un document spécifique\nUtiliser 'content' (pas 'pageContent')\nPas de 'collectionName'"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Document by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vector-store/documents/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["vector-store", "documents", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "document-id"
+                }
+              ]
+            },
+            "description": "Récupère un document par son ID\nPas de collectionName requis"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Search (SearXNG + Tavily)",
+      "item": [
+        {
+          "name": "Search - Simple Query",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Redis cache integration best practices\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/search",
+              "host": ["{{baseUrl}}"],
+              "path": ["search"]
+            },
+            "description": "Recherche simple avec cache Redis (TTL: 1h)\nAuto-fallback: Tavily → SearXNG"
+          },
+          "response": []
+        },
+        {
+          "name": "Search - Complex Query (HIGH)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"What are the detailed implementation strategies for distributed caching systems using Redis Cluster with automatic failover and master-slave replication patterns?\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/search",
+              "host": ["{{baseUrl}}"],
+              "path": ["search"]
+            },
+            "description": "Requête complexe détectée automatiquement (complexity: HIGH)\nUtilise Tavily si disponible, sinon SearXNG"
+          },
+          "response": []
+        },
+        {
+          "name": "Search - With Options",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"NestJS Redis integration\",\n  \"maxResults\": 10,\n  \"language\": \"fr\",\n  \"region\": \"FR\",\n  \"timeRange\": \"month\",\n  \"includeImages\": false,\n  \"forceProvider\": \"auto\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/search",
+              "host": ["{{baseUrl}}"],
+              "path": ["search"]
+            },
+            "description": "Recherche avec options valides:\n- maxResults (1-20)\n- language (ISO 639-1)\n- region (ISO 3166-1)\n- timeRange (day/week/month/year/all)\n- includeImages (boolean)\n- includeDomains/excludeDomains (array)\n- forceProvider (tavily/searxng/auto)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Search Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/search/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["search", "health"]
+            },
+            "description": "Vérifie la disponibilité de Tavily et SearXNG"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Search Quota",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/search/quota",
+              "host": ["{{baseUrl}}"],
+              "path": ["search", "quota"]
+            },
+            "description": "Affiche le quota Tavily restant"
+          },
+          "response": []
+        },
+        {
+          "name": "Clear Search Cache",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/search/cache",
+              "host": ["{{baseUrl}}"],
+              "path": ["search", "cache"]
+            },
+            "description": "Vide le cache Redis du namespace 'search:*'"
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Search Quota",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/search/quota/reset",
+              "host": ["{{baseUrl}}"],
+              "path": ["search", "quota", "reset"]
+            },
+            "description": "Réinitialise le compteur de quota Tavily"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. RAG (Retrieval-Augmented Generation)",
+      "item": [
+        {
+          "name": "RAG Ingest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filePath\": \"uploads/your-file.txt\",\n  \"chunkSize\": 1000,\n  \"chunkOverlap\": 200,\n  \"metadata\": {\n    \"source\": \"documentation\",\n    \"category\": \"technical\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rag/ingest",
+              "host": ["{{baseUrl}}"],
+              "path": ["rag", "ingest"]
+            },
+            "description": "Ingère un document : upload → process → embed → store\nPas de 'collectionName' requis"
+          },
+          "response": []
+        },
+        {
+          "name": "RAG Query",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Comment utiliser Redis avec NestJS ?\",\n  \"topK\": 5,\n  \"minScore\": 0.7,\n  \"temperature\": 0.7,\n  \"includeSourceDocuments\": true,\n  \"includeFewShot\": false,\n  \"useAdvancedPrompt\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rag/query",
+              "host": ["{{baseUrl}}"],
+              "path": ["rag", "query"]
+            },
+            "description": "Query RAG : retrieve (avec cache) + generate answer\nCache Redis namespace: 'rag:*' (TTL: 30min)\nUtiliser 'topK' (pas 'k'), pas de 'collectionName', pas de 'maxTokens'"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. LLM (Language Model)",
+      "item": [
+        {
+          "name": "Generate Text",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prompt\": \"Explique ce qu'est Redis en 2 phrases.\",\n  \"temperature\": 0.7,\n  \"maxTokens\": 200\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/llm/generate",
+              "host": ["{{baseUrl}}"],
+              "path": ["llm", "generate"]
+            },
+            "description": "Génère du texte avec le LLM (Ollama/OpenAI)"
+          },
+          "response": []
+        },
+        {
+          "name": "Chat Completion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Tu es un assistant technique expert en NestJS.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Comment intégrer Redis dans NestJS ?\"\n    }\n  ],\n  \"temperature\": 0.8,\n  \"maxTokens\": 500\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/llm/chat",
+              "host": ["{{baseUrl}}"],
+              "path": ["llm", "chat"]
+            },
+            "description": "Chat avec historique de conversation"
+          },
+          "response": []
+        },
+        {
+          "name": "Stream Generate (SSE)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/event-stream"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/llm/stream?prompt=Raconte une histoire courte",
+              "host": ["{{baseUrl}}"],
+              "path": ["llm", "stream"],
+              "query": [
+                {
+                  "key": "prompt",
+                  "value": "Raconte une histoire courte"
+                }
+              ]
+            },
+            "description": "Streaming de génération de texte (SSE)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current Provider",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/llm/provider",
+              "host": ["{{baseUrl}}"],
+              "path": ["llm", "provider"]
+            },
+            "description": "Affiche le provider LLM actif (ollama/openai)"
+          },
+          "response": []
+        },
+        {
+          "name": "Switch Provider",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"provider\": \"openai\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/llm/provider/switch",
+              "host": ["{{baseUrl}}"],
+              "path": ["llm", "provider", "switch"]
+            },
+            "description": "Change le provider LLM (ollama/openai)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "6. Audit Logs",
+      "item": [
+        {
+          "name": "Get Audit History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/audit/history",
+              "host": ["{{baseUrl}}"],
+              "path": ["audit", "history"]
+            },
+            "description": "Récupère l'historique complet d'audit"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Audit History - Filtered",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/audit/history?operation=DOCUMENT_UPLOAD&success=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["audit", "history"],
+              "query": [
+                {
+                  "key": "operation",
+                  "value": "DOCUMENT_UPLOAD"
+                },
+                {
+                  "key": "success",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Filtre par opération, userId, resourceId, success"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Document History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/audit/document/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["audit", "document", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "document-id"
+                }
+              ]
+            },
+            "description": "Historique d'audit pour un document spécifique"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Audit Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/audit/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["audit", "stats"]
+            },
+            "description": "Statistiques d'audit (total, par opération, succès/échecs)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "7. Prompts - Création",
       "item": [
         {
           "name": "Create RAG Prompt",
@@ -194,7 +835,7 @@
       "description": "Endpoints pour créer des prompts (système et custom)"
     },
     {
-      "name": "2. Prompts - Utilitaires",
+      "name": "8. Prompts - Utilitaires",
       "item": [
         {
           "name": "Format Prompt",
@@ -329,7 +970,7 @@
       "description": "Endpoints utilitaires (format, validation, extraction, cache)"
     },
     {
-      "name": "3. Templates - Système",
+      "name": "9. Templates - Système",
       "item": [
         {
           "name": "Get All Templates (System Only)",
@@ -396,7 +1037,7 @@
       "description": "Endpoints pour récupérer les templates système"
     },
     {
-      "name": "4. Templates - CRUD Custom",
+      "name": "10. Templates - CRUD Custom",
       "item": [
         {
           "name": "Get All Templates (System + Custom)",
@@ -601,7 +1242,7 @@
       "description": "CRUD complet pour templates personnalisés (Create, Read, Update, Delete)"
     },
     {
-      "name": "5. Few-Shot Examples",
+      "name": "11. Few-Shot Examples",
       "item": [
         {
           "name": "Get All Few-Shot Examples",
@@ -609,7 +1250,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/prompts/examples/create",
+              "raw": "{{baseUrl}}/prompts/examples",
               "path": [
                 "prompts",
                 "examples"
@@ -623,47 +1264,47 @@
           "response": []
         },
         {
-          "name": "Get Few-Shot by Category - QA",
+          "name": "Get Few-Shot by Category - RAG",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/prompts/examples/qa",
+              "raw": "{{baseUrl}}/prompts/examples/rag",
               "path": [
                 "prompts",
                 "examples",
-                "qa"
+                "rag"
               ],
               "host": [
                 "{{baseUrl}}"
               ]
             },
-            "description": "Récupère les exemples de la catégorie \u0027qa\u0027"
+            "description": "Récupère les exemples de la catégorie \u0027rag\u0027\nCatégories valides: rag, conversation, code, summarization, extraction"
           },
           "response": []
         },
         {
-          "name": "Get Few-Shot by Category - Classification",
+          "name": "Get Few-Shot by Category - Code",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/prompts/examples/classification",
+              "raw": "{{baseUrl}}/prompts/examples/code",
               "path": [
                 "prompts",
                 "examples",
-                "classification"
+                "code"
               ],
               "host": [
                 "{{baseUrl}}"
               ]
             },
-            "description": "Récupère les exemples de la catégorie \u0027classification\u0027"
+            "description": "Récupère les exemples de la catégorie \u0027code\u0027"
           },
           "response": []
         },
         {
-          "name": "Create Few-Shot Example - QA",
+          "name": "Create Few-Shot Example - RAG",
           "request": {
             "method": "POST",
             "header": [
@@ -674,7 +1315,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"category\": \"qa\",\n  \"input\": \"Quelle est la capitale de l\u0027Italie ?\",\n  \"output\": \"La capitale de l\u0027Italie est Rome.\",\n  \"context\": \"Géographie européenne\"\n}"
+              "raw": "{\n  \"category\": \"rag\",\n  \"input\": \"Qu\u0027est-ce que LangChain ?\",\n  \"output\": \"LangChain est un framework open source pour développer des applications alimentées par des modèles de langage.\",\n  \"context\": \"LangChain fournit des abstractions et des outils pour intégrer des LLMs dans des applications.\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/prompts/examples/create",
@@ -687,7 +1328,7 @@
                 "{{baseUrl}}"
               ]
             },
-            "description": "Crée un nouvel exemple few-shot pour la catégorie QA"
+            "description": "Crée un nouvel exemple few-shot pour la catégorie RAG\nCatégories valides: rag, conversation, code, summarization, extraction"
           },
           "response": []
         },
@@ -721,23 +1362,23 @@
           "response": []
         },
         {
-          "name": "Get Custom Few-Shot Examples - QA",
+          "name": "Get Custom Few-Shot Examples - Summarization",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/prompts/examples/custom/qa",
+              "raw": "{{baseUrl}}/prompts/examples/custom/summarization",
               "path": [
                 "prompts",
                 "examples",
                 "custom",
-                "qa"
+                "summarization"
               ],
               "host": [
                 "{{baseUrl}}"
               ]
             },
-            "description": "Récupère uniquement les exemples custom de la catégorie \u0027qa\u0027"
+            "description": "Récupère uniquement les exemples custom de la catégorie \u0027summarization\u0027"
           },
           "response": []
         },
@@ -762,23 +1403,23 @@
           "response": []
         },
         {
-          "name": "Clear Custom Examples - QA Only",
+          "name": "Clear Custom Examples - Summarization Only",
           "request": {
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/prompts/examples/custom/qa",
+              "raw": "{{baseUrl}}/prompts/examples/custom/summarization",
               "path": [
                 "prompts",
                 "examples",
                 "custom",
-                "qa"
+                "summarization"
               ],
               "host": [
                 "{{baseUrl}}"
               ]
             },
-            "description": "Supprime uniquement les exemples custom de la catégorie \u0027qa\u0027"
+            "description": "Supprime uniquement les exemples custom de la catégorie \u0027summarization\u0027"
           },
           "response": []
         }
