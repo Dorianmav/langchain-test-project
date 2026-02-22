@@ -42,13 +42,16 @@ services:
       # Redis
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - REDIS_DB=0
+      - REDIS_TLS_ENABLED=false
 
     volumes:
       - ./src:/app/src
       - ./data:/app/data
       - ./uploads:/app/uploads
       - ./logs:/app/logs
-      - node_modules:/app/node_modules
+      - .:/app
 
     command: npm run start:dev:poll
 
@@ -93,11 +96,43 @@ services:
       - "11435:11434"
     volumes:
       - ./data/cache/ollama:/root/.ollama
+      - ./docker/init-scripts:/init-scripts:ro
     networks:
       - rag-network
     dns:
       - 8.8.8.8
       - 8.8.4.4
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        # Démarrer Ollama en arrière-plan
+        /bin/ollama serve &
+        
+        # Attendre que le service soit prêt
+        echo "Attente du démarrage d'Ollama..."
+        sleep 5
+        
+        # Télécharger les modèles si non présents
+        if ! ollama list | grep -q "nomic-embed-text"; then
+          echo "Téléchargement de nomic-embed-text..."
+          ollama pull nomic-embed-text
+        fi
+        
+        if ! ollama list | grep -q "llama3.2"; then
+          echo "Téléchargement de llama3.2..."
+          ollama pull llama3.2
+        fi
+        
+        echo "Ollama prêt avec les modèles configurés"
+        ollama list
+        
+        # Garder le container actif
+        wait
 
   redis:
     image: redis:7-alpine
