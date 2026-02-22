@@ -47,7 +47,8 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       const port = this.configService.get<number>('REDIS_PORT', 6379);
       const password = this.configService.get<string>('REDIS_PASSWORD');
       const db = this.configService.get<number>('REDIS_DB', 0);
-      const enableTLS = this.configService.get<boolean>('REDIS_TLS_ENABLED', false);
+      const tlsRaw = this.configService.get<string>('REDIS_TLS_ENABLED', 'false');
+      const enableTLS = tlsRaw === 'true' || tlsRaw === '1';
 
       this.client = createClient({
         socket: {
