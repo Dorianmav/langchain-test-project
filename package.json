@@ -153,6 +153,9 @@
     "glob": "^11.0.0",
     "@browserbasehq/stagehand": {
       "dotenv": "^17.0.0"
+    },
+    "unpdf": {
+      "canvas": "npm:empty-npm-package@1.0.0"
     }
   },
   "jest": {
