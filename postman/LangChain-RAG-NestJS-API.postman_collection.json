@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "9fc94022-4099-44e8-a33c-e2a15fbd79c2",
     "name": "LangChain RAG NestJS API - Complete Collection",
-    "description": "Collection complète pour l'API LangChain RAG avec NestJS - Redis Cache + SearXNG + Vector Store + RAG",
+    "description": "Collection complète pour l'API LangChain RAG avec NestJS - Redis Cache + SearXNG + Vector Store + RAG + Chains + Agents",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "28161110"
   },
@@ -24,8 +24,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/",
-              "host": ["{{baseUrl}}"],
-              "path": [""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                ""
+              ]
             },
             "description": "Vérifie que l'API est opérationnelle"
           },
@@ -58,8 +62,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/documents/upload",
-              "host": ["{{baseUrl}}"],
-              "path": ["documents", "upload"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "documents",
+                "upload"
+              ]
             },
             "description": "Upload un fichier (PDF, TXT, MD, JSON, CSV) - Max 10MB"
           },
@@ -81,8 +90,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/documents/process",
-              "host": ["{{baseUrl}}"],
-              "path": ["documents", "process"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "documents",
+                "process"
+              ]
             },
             "description": "Charge et découpe un document en chunks"
           },
@@ -95,8 +109,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/documents/supported-types",
-              "host": ["{{baseUrl}}"],
-              "path": ["documents", "supported-types"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "documents",
+                "supported-types"
+              ]
             },
             "description": "Liste des types de fichiers supportés"
           },
@@ -119,12 +138,22 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"documents\": [\n    {\n      \"content\": \"LangChain est un framework pour développer des applications alimentées par des modèles de langage.\",\n      \"metadata\": {\n        \"source\": \"documentation\",\n        \"category\": \"intro\"\n      }\n    },\n    {\n      \"content\": \"Redis est une base de données en mémoire utilisée pour le cache.\",\n      \"metadata\": {\n        \"source\": \"documentation\",\n        \"category\": \"database\"\n      }\n    }\n  ]\n}"
+              "raw": "{\n  \"documents\": [\n    {\n      \"content\": \"LangChain est un framework pour développer des applications alimentées par des modèles de langage.\",\n      \"metadata\": {\n        \"source\": \"documentation\",\n        \"category\": \"intro\"\n      }\n    },\n    {\n      \"content\": \"Redis est une base de données en mémoire utilisée pour le cache.\",\n      \"metadata\": {\n        \"source\": \"documentation\",\n        \"category\": \"database\"\n      }\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/vector-store/documents",
-              "host": ["{{baseUrl}}"],
-              "path": ["vector-store", "documents"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vector-store",
+                "documents"
+              ]
             },
             "description": "Ajoute des documents au vector store avec embeddings\nPropriété: 'content' (pas 'pageContent')\nPas de 'collectionName' (collection par défaut)"
           },
@@ -142,12 +171,22 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"query\": \"Qu'est-ce que LangChain ?\",\n  \"k\": 5,\n  \"includeScores\": true\n}"
+              "raw": "{\n  \"query\": \"Qu'est-ce que LangChain ?\",\n  \"k\": 5,\n  \"includeScores\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/vector-store/search",
-              "host": ["{{baseUrl}}"],
-              "path": ["vector-store", "search"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vector-store",
+                "search"
+              ]
             },
             "description": "Recherche sémantique dans le vector store (avec cache Redis namespace: embeddings:*)\nPas de 'collectionName' requis"
           },
@@ -160,12 +199,22 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"ids\": [],  \n}"
+              "raw": "{\n  \"ids\": []  \n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/vector-store/documents",
-              "host": ["{{baseUrl}}"],
-              "path": ["vector-store", "documents"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vector-store",
+                "documents"
+              ]
             },
             "description": "Supprime tous les documents de la collection par défaut\nPas de body requis"
           },
@@ -178,8 +227,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/vector-store/count",
-              "host": ["{{baseUrl}}"],
-              "path": ["vector-store", "count"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vector-store",
+                "count"
+              ]
             },
             "description": "Compte les documents dans la collection par défaut"
           },
@@ -192,8 +246,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/vector-store/documents/list?limit=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["vector-store", "documents", "list"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vector-store",
+                "documents",
+                "list"
+              ],
               "query": [
                 {
                   "key": "limit",
@@ -212,8 +272,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/vector-store/info",
-              "host": ["{{baseUrl}}"],
-              "path": ["vector-store", "info"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vector-store",
+                "info"
+              ]
             },
             "description": "Informations sur le vector store (type, dimensions)"
           },
@@ -226,8 +291,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/vector-store/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["vector-store", "health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vector-store",
+                "health"
+              ]
             },
             "description": "Vérifie la santé du vector store"
           },
@@ -245,12 +315,23 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"content\": \"Contenu mis à jour sur LangChain et ses fonctionnalités avancées.\",\n  \"metadata\": {\n    \"source\": \"documentation\",\n    \"updated\": true\n  }\n}"
+              "raw": "{\n  \"content\": \"Contenu mis à jour sur LangChain et ses fonctionnalités avancées.\",\n  \"metadata\": {\n    \"source\": \"documentation\",\n    \"updated\": true\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/vector-store/documents/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["vector-store", "documents", ":id"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vector-store",
+                "documents",
+                ":id"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -269,8 +350,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/vector-store/documents/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["vector-store", "documents", ":id"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vector-store",
+                "documents",
+                ":id"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -299,12 +386,21 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"query\": \"Redis cache integration best practices\"\n}"
+              "raw": "{\n  \"query\": \"Redis cache integration best practices\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/search",
-              "host": ["{{baseUrl}}"],
-              "path": ["search"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "search"
+              ]
             },
             "description": "Recherche simple avec cache Redis (TTL: 1h)\nAuto-fallback: Tavily → SearXNG"
           },
@@ -322,12 +418,21 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"query\": \"What are the detailed implementation strategies for distributed caching systems using Redis Cluster with automatic failover and master-slave replication patterns?\"\n}"
+              "raw": "{\n  \"query\": \"What are the detailed implementation strategies for distributed caching systems using Redis Cluster with automatic failover and master-slave replication patterns?\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/search",
-              "host": ["{{baseUrl}}"],
-              "path": ["search"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "search"
+              ]
             },
             "description": "Requête complexe détectée automatiquement (complexity: HIGH)\nUtilise Tavily si disponible, sinon SearXNG"
           },
@@ -345,12 +450,21 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"query\": \"NestJS Redis integration\",\n  \"maxResults\": 10,\n  \"language\": \"fr\",\n  \"region\": \"FR\",\n  \"timeRange\": \"month\",\n  \"includeImages\": false,\n  \"forceProvider\": \"auto\"\n}"
+              "raw": "{\n  \"query\": \"NestJS Redis integration\",\n  \"maxResults\": 10,\n  \"language\": \"fr\",\n  \"region\": \"FR\",\n  \"timeRange\": \"month\",\n  \"includeImages\": false,\n  \"forceProvider\": \"auto\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/search",
-              "host": ["{{baseUrl}}"],
-              "path": ["search"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "search"
+              ]
             },
             "description": "Recherche avec options valides:\n- maxResults (1-20)\n- language (ISO 639-1)\n- region (ISO 3166-1)\n- timeRange (day/week/month/year/all)\n- includeImages (boolean)\n- includeDomains/excludeDomains (array)\n- forceProvider (tavily/searxng/auto)"
           },
@@ -363,8 +477,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/search/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["search", "health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "search",
+                "health"
+              ]
             },
             "description": "Vérifie la disponibilité de Tavily et SearXNG"
           },
@@ -377,8 +496,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/search/quota",
-              "host": ["{{baseUrl}}"],
-              "path": ["search", "quota"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "search",
+                "quota"
+              ]
             },
             "description": "Affiche le quota Tavily restant"
           },
@@ -391,8 +515,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/search/cache",
-              "host": ["{{baseUrl}}"],
-              "path": ["search", "cache"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "search",
+                "cache"
+              ]
             },
             "description": "Vide le cache Redis du namespace 'search:*'"
           },
@@ -405,8 +534,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/search/quota/reset",
-              "host": ["{{baseUrl}}"],
-              "path": ["search", "quota", "reset"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "search",
+                "quota",
+                "reset"
+              ]
             },
             "description": "Réinitialise le compteur de quota Tavily"
           },
@@ -429,12 +564,22 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"filePath\": \"uploads/your-file.txt\",\n  \"chunkSize\": 1000,\n  \"chunkOverlap\": 200,\n  \"metadata\": {\n    \"source\": \"documentation\",\n    \"category\": \"technical\"\n  }\n}"
+              "raw": "{\n  \"filePath\": \"uploads/your-file.txt\",\n  \"chunkSize\": 1000,\n  \"chunkOverlap\": 200,\n  \"metadata\": {\n    \"source\": \"documentation\",\n    \"category\": \"technical\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/rag/ingest",
-              "host": ["{{baseUrl}}"],
-              "path": ["rag", "ingest"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rag",
+                "ingest"
+              ]
             },
             "description": "Ingère un document : upload → process → embed → store\nPas de 'collectionName' requis"
           },
@@ -452,12 +597,22 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"query\": \"Comment utiliser Redis avec NestJS ?\",\n  \"topK\": 5,\n  \"minScore\": 0.7,\n  \"temperature\": 0.7,\n  \"includeSourceDocuments\": true,\n  \"includeFewShot\": false,\n  \"useAdvancedPrompt\": false\n}"
+              "raw": "{\n  \"query\": \"Comment utiliser Redis avec NestJS ?\",\n  \"topK\": 5,\n  \"minScore\": 0.7,\n  \"temperature\": 0.7,\n  \"includeSourceDocuments\": true,\n  \"includeFewShot\": false,\n  \"useAdvancedPrompt\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/rag/query",
-              "host": ["{{baseUrl}}"],
-              "path": ["rag", "query"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rag",
+                "query"
+              ]
             },
             "description": "Query RAG : retrieve (avec cache) + generate answer\nCache Redis namespace: 'rag:*' (TTL: 30min)\nUtiliser 'topK' (pas 'k'), pas de 'collectionName', pas de 'maxTokens'"
           },
@@ -480,12 +635,22 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"prompt\": \"Explique ce qu'est Redis en 2 phrases.\",\n  \"temperature\": 0.7,\n  \"maxTokens\": 200\n}"
+              "raw": "{\n  \"prompt\": \"Explique ce qu'est Redis en 2 phrases.\",\n  \"temperature\": 0.7,\n  \"maxTokens\": 200\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/llm/generate",
-              "host": ["{{baseUrl}}"],
-              "path": ["llm", "generate"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "llm",
+                "generate"
+              ]
             },
             "description": "Génère du texte avec le LLM (Ollama/OpenAI)"
           },
@@ -503,12 +668,22 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Tu es un assistant technique expert en NestJS.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Comment intégrer Redis dans NestJS ?\"\n    }\n  ],\n  \"temperature\": 0.8,\n  \"maxTokens\": 500\n}"
+              "raw": "{\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Tu es un assistant technique expert en NestJS.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Comment intégrer Redis dans NestJS ?\"\n    }\n  ],\n  \"temperature\": 0.8,\n  \"maxTokens\": 500\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/llm/chat",
-              "host": ["{{baseUrl}}"],
-              "path": ["llm", "chat"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "llm",
+                "chat"
+              ]
             },
             "description": "Chat avec historique de conversation"
           },
@@ -526,8 +701,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/llm/stream?prompt=Raconte une histoire courte",
-              "host": ["{{baseUrl}}"],
-              "path": ["llm", "stream"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "llm",
+                "stream"
+              ],
               "query": [
                 {
                   "key": "prompt",
@@ -546,8 +726,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/llm/provider",
-              "host": ["{{baseUrl}}"],
-              "path": ["llm", "provider"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "llm",
+                "provider"
+              ]
             },
             "description": "Affiche le provider LLM actif (ollama/openai)"
           },
@@ -565,12 +750,23 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"provider\": \"openai\"\n}"
+              "raw": "{\n  \"provider\": \"openai\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/llm/provider/switch",
-              "host": ["{{baseUrl}}"],
-              "path": ["llm", "provider", "switch"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "llm",
+                "provider",
+                "switch"
+              ]
             },
             "description": "Change le provider LLM (ollama/openai)"
           },
@@ -588,8 +784,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/audit/history",
-              "host": ["{{baseUrl}}"],
-              "path": ["audit", "history"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "audit",
+                "history"
+              ]
             },
             "description": "Récupère l'historique complet d'audit"
           },
@@ -601,13 +802,18 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/audit/history?operation=DOCUMENT_UPLOAD&success=true",
-              "host": ["{{baseUrl}}"],
-              "path": ["audit", "history"],
+              "raw": "{{baseUrl}}/audit/history?operation=update_document&success=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "audit",
+                "history"
+              ],
               "query": [
                 {
                   "key": "operation",
-                  "value": "DOCUMENT_UPLOAD"
+                  "value": "update_document"
                 },
                 {
                   "key": "success",
@@ -626,8 +832,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/audit/document/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["audit", "document", ":id"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "audit",
+                "document",
+                ":id"
+              ],
               "variable": [
                 {
                   "key": "id",
@@ -646,8 +858,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/audit/stats",
-              "host": ["{{baseUrl}}"],
-              "path": ["audit", "stats"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "audit",
+                "stats"
+              ]
             },
             "description": "Statistiques d'audit (total, par opération, succès/échecs)"
           },
@@ -670,7 +887,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"type\": \"rag\",\n  \"includeFewShot\": false,\n  \"variables\": {\n    \"context\": \"LangChain est un framework pour développer des applications alimentées par des modèles de langage.\",\n    \"question\": \"Qu\u0027est-ce que LangChain ?\"\n  }\n}"
+              "raw": "{\n  \"type\": \"rag\",\n  \"includeFewShot\": false,\n  \"variables\": {\n    \"context\": \"LangChain est un framework pour développer des applications alimentées par des modèles de langage.\",\n    \"question\": \"Qu\u0027est-ce que LangChain ?\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/prompts/create",
@@ -698,7 +920,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"type\": \"conversation\",\n  \"includeHistory\": true,\n  \"variables\": {\n    \"message\": \"Bonjour, comment ça va ?\",\n    \"history\": \"User: Salut!\\nAssistant: Bonjour!\"\n  }\n}"
+              "raw": "{\n  \"type\": \"conversation\",\n  \"includeHistory\": true,\n  \"variables\": {\n    \"message\": \"Bonjour, comment ça va ?\",\n    \"history\": \"User: Salut!\\nAssistant: Bonjour!\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/prompts/create",
@@ -726,7 +953,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"type\": \"summarization\",\n  \"maxLength\": 100,\n  \"variables\": {\n    \"text\": \"LangChain est un framework open source qui permet de développer des applications alimentées par des modèles de langage. Il fournit des outils pour gérer les prompts, les chaînes de traitement, et l\u0027intégration avec diverses sources de données.\"\n  }\n}"
+              "raw": "{\n  \"type\": \"summarization\",\n  \"maxLength\": 100,\n  \"variables\": {\n    \"text\": \"LangChain est un framework open source qui permet de développer des applications alimentées par des modèles de langage. Il fournit des outils pour gérer les prompts, les chaînes de traitement, et l\u0027intégration avec diverses sources de données.\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/prompts/create",
@@ -754,7 +986,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"type\": \"code\",\n  \"variables\": {\n    \"code\": \"const sum = (a, b) =\u003e a + b;\",\n    \"language\": \"JavaScript\"\n  }\n}"
+              "raw": "{\n  \"type\": \"code\",\n  \"variables\": {\n    \"code\": \"const sum = (a, b) =\u003e a + b;\",\n    \"language\": \"JavaScript\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/prompts/create",
@@ -782,7 +1019,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"type\": \"extraction\",\n  \"variables\": {\n    \"text\": \"John Doe, 35 ans, habite à Paris. Email: john@example.com\",\n    \"format\": \"JSON avec fields: name, age, city, email\"\n  }\n}"
+              "raw": "{\n  \"type\": \"extraction\",\n  \"variables\": {\n    \"text\": \"John Doe, 35 ans, habite à Paris. Email: john@example.com\",\n    \"format\": \"JSON avec fields: name, age, city, email\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/prompts/create",
@@ -882,7 +1124,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"template\": \"Question: {question}\\nContext: {context}\",\n  \"requiredVariables\": [\"question\", \"context\"]\n}"
+              "raw": "{\n  \"template\": \"Question: {question}\\nContext: {context}\",\n  \"requiredVariables\": [\"question\", \"context\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/prompts/validate",
@@ -910,7 +1157,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"template\": \"Analyse {topic} en utilisant {method} et génère un rapport.\"\n}"
+              "raw": "{\n  \"template\": \"Analyse {topic} en utilisant {method} et génère un rapport.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/prompts/extract-variables",
@@ -1071,7 +1323,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"search\",\n  \"content\": \"Rechercher des informations sur {query} en utilisant les sources suivantes: {sources}. Limiter à {maxResults} résultats pertinents.\",\n  \"description\": \"Template pour effectuer des recherches ciblées\",\n  \"variables\": [\"query\", \"sources\", \"maxResults\"]\n}"
+              "raw": "{\n  \"name\": \"search\",\n  \"content\": \"Rechercher des informations sur {query} en utilisant les sources suivantes: {sources}. Limiter à {maxResults} résultats pertinents.\",\n  \"description\": \"Template pour effectuer des recherches ciblées\",\n  \"variables\": [\"query\", \"sources\", \"maxResults\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/prompts/templates/custom",
@@ -1100,7 +1357,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"scraper\",\n  \"content\": \"Extraire les données suivantes d\u0027une page web {url}: {fields}. Format de sortie: {format}. Ignorer les éléments: {excludeSelectors}.\",\n  \"description\": \"Template pour extraire des données de pages web\",\n  \"variables\": [\"url\", \"fields\", \"format\", \"excludeSelectors\"]\n}"
+              "raw": "{\n  \"name\": \"scraper\",\n  \"content\": \"Extraire les données suivantes d\u0027une page web {url}: {fields}. Format de sortie: {format}. Ignorer les éléments: {excludeSelectors}.\",\n  \"description\": \"Template pour extraire des données de pages web\",\n  \"variables\": [\"url\", \"fields\", \"format\", \"excludeSelectors\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/prompts/templates/custom",
@@ -1129,7 +1391,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"translator\",\n  \"content\": \"Traduire le texte suivant de {sourceLang} vers {targetLang}:\\n\\nTexte: {text}\\n\\nFormat de sortie: {format}. Ton: {tone}.\",\n  \"description\": \"Template pour traduction avec contrôle du ton\",\n  \"variables\": [\"text\", \"sourceLang\", \"targetLang\", \"format\", \"tone\"]\n}"
+              "raw": "{\n  \"name\": \"translator\",\n  \"content\": \"Traduire le texte suivant de {sourceLang} vers {targetLang}:\\n\\nTexte: {text}\\n\\nFormat de sortie: {format}. Ton: {tone}.\",\n  \"description\": \"Template pour traduction avec contrôle du ton\",\n  \"variables\": [\"text\", \"sourceLang\", \"targetLang\", \"format\", \"tone\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/prompts/templates/custom",
@@ -1178,7 +1445,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"description\": \"Template mis à jour pour recherches avancées\",\n  \"content\": \"Rechercher des informations détaillées sur {query} dans les sources: {sources}. Limiter à {maxResults} résultats. Filtrer par: {filters}.\",\n  \"variables\": [\"query\", \"sources\", \"maxResults\", \"filters\"]\n}"
+              "raw": "{\n  \"description\": \"Template mis à jour pour recherches avancées\",\n  \"content\": \"Rechercher des informations détaillées sur {query} dans les sources: {sources}. Limiter à {maxResults} résultats. Filtrer par: {filters}.\",\n  \"variables\": [\"query\", \"sources\", \"maxResults\", \"filters\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/prompts/templates/custom/search",
@@ -1202,18 +1474,18 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/prompts/templates/custom/search",
+              "raw": "{{baseUrl}}/prompts/templates/custom/scraper",
               "path": [
                 "prompts",
                 "templates",
                 "custom",
-                "search"
+                "scraper"
               ],
               "host": [
                 "{{baseUrl}}"
               ]
             },
-            "description": "Supprime le template custom \u0027search\u0027"
+            "description": "Supprime le template custom \u0027scraper\u0027"
           },
           "response": []
         },
@@ -1315,7 +1587,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"category\": \"rag\",\n  \"input\": \"Qu\u0027est-ce que LangChain ?\",\n  \"output\": \"LangChain est un framework open source pour développer des applications alimentées par des modèles de langage.\",\n  \"context\": \"LangChain fournit des abstractions et des outils pour intégrer des LLMs dans des applications.\"\n}"
+              "raw": "{\n  \"category\": \"rag\",\n  \"input\": \"Qu\u0027est-ce que LangChain ?\",\n  \"output\": \"LangChain est un framework open source pour développer des applications alimentées par des modèles de langage.\",\n  \"context\": \"LangChain fournit des abstractions et des outils pour intégrer des LLMs dans des applications.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/prompts/examples/create",
@@ -1344,7 +1621,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"category\": \"summarization\",\n  \"input\": \"L\u0027intelligence artificielle transforme rapidement le monde du travail, créant de nouvelles opportunités tout en soulevant des questions éthiques importantes sur l\u0027automatisation et l\u0027emploi.\",\n  \"output\": \"L\u0027IA révolutionne l\u0027emploi avec des opportunités et défis éthiques.\"\n}"
+              "raw": "{\n  \"category\": \"summarization\",\n  \"input\": \"L\u0027intelligence artificielle transforme rapidement le monde du travail, créant de nouvelles opportunités tout en soulevant des questions éthiques importantes sur l\u0027automatisation et l\u0027emploi.\",\n  \"output\": \"L\u0027IA révolutionne l\u0027emploi avec des opportunités et défis éthiques.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/prompts/examples/create",
@@ -1425,6 +1707,388 @@
         }
       ],
       "description": "Endpoints pour gérer les exemples few-shot (système + custom)"
+    },
+    {
+      "name": "12. Chains - LangChain",
+      "item": [
+        {
+          "name": "Simple Chain",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"template\": \"Écris une salutation {tone} pour {recipient}.\",\n  \"variables\": {\n    \"tone\": \"professionnelle\",\n    \"recipient\": \"un nouveau client\"\n  },\n  \"temperature\": 0.7\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/chains/simple",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chains",
+                "simple"
+              ]
+            },
+            "description": "Simple Chain: Template + Variables → LLM → Résultat\\nCache Redis (30 min)"
+          },
+          "response": []
+        },
+        {
+          "name": "Sequential Chain",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"steps\": [\n    {\n      \"name\": \"topic\",\n      \"template\": \"Propose un sujet d\u0027histoire sur {theme}\",\n      \"inputVariables\": [\"theme\"],\n      \"outputKey\": \"story_topic\"\n    },\n    {\n      \"name\": \"plot\",\n      \"template\": \"Crée une intrigue pour: {story_topic}\",\n      \"inputVariables\": [\"story_topic\"],\n      \"outputKey\": \"plot\"\n    },\n    {\n      \"name\": \"story\",\n      \"template\": \"Écris une courte histoire basée sur: {plot}\",\n      \"inputVariables\": [\"plot\"],\n      \"outputKey\": \"final_story\"\n    }\n  ],\n  \"initialVariables\": {\n    \"theme\": \"science-fiction\"\n  },\n  \"temperature\": 0.8\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/chains/sequential",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chains",
+                "sequential"
+              ]
+            },
+            "description": "Sequential Chain: Pipeline d\u0027étapes séquentielles\\nChaque output devient l\u0027input de l\u0027étape suivante"
+          },
+          "response": []
+        },
+        {
+          "name": "Retrieval QA Chain",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"Qu\u0027est-ce que LangChain ?\",\n  \"topK\": 4,\n  \"chainType\": \"stuff\",\n  \"returnSourceDocuments\": true,\n  \"temperature\": 0.3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/chains/retrieval-qa",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chains",
+                "retrieval-qa"
+              ]
+            },
+            "description": "Retrieval QA: Question-Answering avec Vector Store\\nTypes: stuff, map_reduce, refine, map_rerank"
+          },
+          "response": []
+        },
+        {
+          "name": "Conversational Retrieval Chain",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"user-123\",\n  \"question\": \"Comment l\u0027utiliser avec NestJS ?\",\n  \"topK\": 4,\n  \"returnSourceDocuments\": true,\n  \"temperature\": 0.5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/chains/conversational",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chains",
+                "conversational"
+              ]
+            },
+            "description": "Conversational Retrieval: QA avec mémoire conversationnelle\\nReformule automatiquement les questions contextuelles"
+          },
+          "response": []
+        },
+        {
+          "name": "Clear Session Memory",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/chains/memory/:sessionId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chains",
+                "memory",
+                ":sessionId"
+              ],
+              "variable": [
+                {
+                  "key": "sessionId",
+                  "value": "user-123"
+                }
+              ]
+            },
+            "description": "Supprime l\u0027historique de conversation d\u0027une session"
+          },
+          "response": []
+        }
+      ],
+      "description": "LangChain Chains: Simple, Sequential, Retrieval QA, Conversational"
+    },
+    {
+      "name": "13. Agents - ReAct Pattern",
+      "item": [
+        {
+          "name": "Execute Agent - Web Search",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"task\": \"Trouve les dernières nouvelles sur NestJS et résume-les\",\n  \"tools\": [\"web_search\"],\n  \"maxIterations\": 5,\n  \"timeout\": 30,\n  \"verbose\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/agents/execute",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "agents",
+                "execute"
+              ]
+            },
+            "description": "Agent ReAct avec outil web_search\\nRaisonnement + Action pour tâches complexes"
+          },
+          "response": []
+        },
+        {
+          "name": "Execute Agent - Calculator",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"task\": \"Calcule (25 * 4) + (100 / 5) et explique le résultat\",\n  \"tools\": [\"calculator\"],\n  \"maxIterations\": 3,\n  \"verbose\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/agents/execute",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "agents",
+                "execute"
+              ]
+            },
+            "description": "Agent avec outil calculator (mathjs)\\nÉvalue des expressions mathématiques"
+          },
+          "response": []
+        },
+        {
+          "name": "Execute Agent - Multi-Tools avec Mémoire",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"user-456\",\n  \"task\": \"Quelle est la date d\u0027aujourd\u0027hui et recherche des événements importants pour cette date\",\n  \"tools\": [\"datetime\", \"web_search\"],\n  \"maxIterations\": 5,\n  \"temperature\": 0.7,\n  \"verbose\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/agents/execute",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "agents",
+                "execute"
+              ]
+            },
+            "description": "Agent avec plusieurs outils et mémoire de session\\nOutils: datetime + web_search"
+          },
+          "response": []
+        },
+        {
+          "name": "Register Custom Tool - Weather API",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"weather_api\",\n  \"description\": \"Récupère la météo actuelle pour une ville. Input: nom de la ville\",\n  \"endpoint\": \"https://api.openweathermap.org/data/2.5/weather\",\n  \"method\": \"GET\",\n  \"headers\": {\n    \"Accept\": \"application/json\"\n  },\n  \"responseTemplate\": \"Météo à {name}: {weather[0].description}, Température: {main.temp}°C\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/agents/tools/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "agents",
+                "tools",
+                "register"
+              ]
+            },
+            "description": "Enregistre un outil HTTP personnalisé\\nSupporte GET/POST avec template de réponse"
+          },
+          "response": []
+        },
+        {
+          "name": "Register Custom Tool - Joke API",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"joke_api\",\n  \"description\": \"Récupère une blague aléatoire\",\n  \"endpoint\": \"https://official-joke-api.appspot.com/random_joke\",\n  \"method\": \"GET\",\n  \"responseTemplate\": \"{setup} - {punchline}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/agents/tools/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "agents",
+                "tools",
+                "register"
+              ]
+            },
+            "description": "Outil personnalisé pour API de blagues"
+          },
+          "response": []
+        },
+        {
+          "name": "List All Tools",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/agents/tools",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "agents",
+                "tools"
+              ]
+            },
+            "description": "Liste tous les outils disponibles\\nSystème: web_search, calculator, datetime\\nCustom: outils enregistrés"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Custom Tool",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/agents/tools/:name",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "agents",
+                "tools",
+                ":name"
+              ],
+              "variable": [
+                {
+                  "key": "name",
+                  "value": "weather_api"
+                }
+              ]
+            },
+            "description": "Supprime un outil personnalisé par son nom"
+          },
+          "response": []
+        }
+      ],
+      "description": "Agents intelligents avec pattern ReAct (Reasoning + Acting)\\nOutils système + custom tools HTTP"
     }
   ]
 }

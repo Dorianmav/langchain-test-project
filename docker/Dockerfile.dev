@@ -7,8 +7,8 @@ COPY package*.json ./
 COPY tsconfig*.json ./
 COPY nest-cli.json ./
 
-# Installer les dépendances avec --legacy-peer-deps
-RUN npm install --legacy-peer-deps
+# Nettoyer le cache npm après installation pour réduire la taille de l'image
+RUN npm install && npm cache clean --force
 
 # Copier le code source (sera overridé par le volume en dev)
 COPY src ./src

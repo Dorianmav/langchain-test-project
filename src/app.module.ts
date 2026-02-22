@@ -13,6 +13,8 @@ import { DocumentLoaderModule } from './modules/document-loader/document-loader.
 import { RagModule } from './modules/rag/rag.module';
 import { PromptsModule } from './modules/prompts/prompts.module';
 import { SearchModule } from './modules/search/search.module';
+import { ChainsModule } from './modules/chains/chains.module';
+import { AgentsModule } from './modules/agents/agents.module';
 import { AuditModule } from './common/audit.module';
 import { RedisModule } from './common/cache/redis.module';
 
@@ -45,6 +47,8 @@ import { RedisModule } from './common/cache/redis.module';
     PromptsModule,
     SearchModule,
     RagModule,
+    ChainsModule,
+    AgentsModule,
   ],
   controllers: [AppController],
   providers: [

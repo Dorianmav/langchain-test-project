@@ -6,7 +6,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { RedisService } from '../../common/cache/redis.service';
 import { TavilyProvider, SearXNGProvider } from './providers';
 import { QueryComplexityService, QuotaManagerService } from './services';
-import { SearchRequestDto, SearchResponseDto } from './dto';
+import { SearchRequestDto, WebSearchResponseDto } from './dto';
 import { SearchMetadata, ISearchProvider } from './interfaces';
 
 /**
@@ -35,7 +35,7 @@ export class SearchService {
   /**
    * Effectue une recherche web avec sélection automatique du provider
    */
-  async search(dto: SearchRequestDto): Promise<SearchResponseDto> {
+  async search(dto: SearchRequestDto): Promise<WebSearchResponseDto> {
     const startTime = Date.now();
     const { query, forceProvider = 'auto' } = dto;
 
@@ -43,7 +43,7 @@ export class SearchService {
 
     // Vérifier le cache Redis
     const cacheKey = this.generateCacheKey(dto);
-    const cached = await this.redisService.get<SearchResponseDto>(this.namespace, cacheKey);
+    const cached = await this.redisService.get<WebSearchResponseDto>(this.namespace, cacheKey);
 
     if (cached) {
       this.logger.log(`✅ Cache hit for: "${query}"`);
@@ -96,7 +96,7 @@ export class SearchService {
       const duration = Date.now() - startTime;
 
       // Construire la réponse
-      const response: SearchResponseDto = {
+      const response: WebSearchResponseDto = {
         results,
         query,
         totalResults: results.length,
@@ -196,7 +196,7 @@ export class SearchService {
     dto: SearchRequestDto,
     failedProvider: string,
     error: string,
-  ): Promise<SearchResponseDto> {
+  ): Promise<WebSearchResponseDto> {
     const fallbackProvider = failedProvider === 'tavily' ? 'searxng' : 'tavily';
     
     this.logger.warn(`⚠️  Attempting fallback to ${fallbackProvider} after ${failedProvider} failure`);

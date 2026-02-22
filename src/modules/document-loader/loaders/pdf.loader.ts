@@ -2,14 +2,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Document } from '@langchain/core/documents';
 import { IDocumentLoader } from '../interfaces/document-loader.interface';
 import { readFile } from 'fs/promises';
-
-// Utilisation de require pour pdf-parse (module CommonJS)
-// La fonction principale est PDFParse qui est une classe
-const { PDFParse } = require('pdf-parse');
+import { extractText, getDocumentProxy } from 'unpdf';
 
 /**
  * Loader pour les fichiers PDF
- * Utilise pdf-parse pour extraire le texte brut des PDFs
+ * Utilise unpdf pour extraire le texte brut des PDFs
+ * unpdf est une alternative moderne à pdf-parse, compatible Node.js pur (pas de DOMMatrix requis)
  */
 @Injectable()
 export class PdfLoader implements IDocumentLoader {
@@ -26,34 +24,31 @@ export class PdfLoader implements IDocumentLoader {
   async load(filePath: string, metadata: Record<string, any> = {}): Promise<Document[]> {
     try {
       this.logger.log(`📄 Loading PDF: ${filePath}`);
-      
+
       // Lire le fichier PDF en buffer
       const dataBuffer = await readFile(filePath);
-      
-      this.logger.log(`📦 Buffer size: ${dataBuffer.length} bytes`);
-      
-      // Créer une instance de PDFParse et parser
-      const parser = new PDFParse({ data: dataBuffer });
-      const result = await parser.getText();
-      const pdfText = result.text;
 
-      this.logger.log(
-        `✅ PDF parsed: ${result.total} pages, ${pdfText.length} characters`
-      );
+      this.logger.log(`📦 Buffer size: ${dataBuffer.length} bytes`);
+
+      // Charger le document PDF via unpdf
+      const pdf = await getDocumentProxy(new Uint8Array(dataBuffer));
+
+      // Extraire le texte en fusionnant toutes les pages
+      const { text, totalPages } = await extractText(pdf, { mergePages: true });
+
+      this.logger.log(`✅ PDF parsed: ${totalPages} pages, ${text.length} characters`);
 
       // Créer un document LangChain avec le contenu extrait
       const document = new Document({
-        pageContent: pdfText,
+        pageContent: text,
         metadata: {
           ...metadata,
           source: filePath,
-          totalPages: result.total,
+          totalPages,
         },
       });
 
-      this.logger.log(
-        `✅ PDF loaded: ${result.total} pages, ${pdfText.length} characters`
-      );
+      this.logger.log(`✅ PDF loaded: ${totalPages} pages, ${text.length} characters`);
 
       return [document];
     } catch (error) {

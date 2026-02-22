@@ -65,6 +65,7 @@
     "dev:docker:down": "docker compose -f docker-compose.dev.yml down",
     "dev:docker:logs": "docker compose -f docker-compose.dev.yml logs -f",
     "dev:docker:restart": "docker compose -f docker-compose.dev.yml restart app",
+    "dev:docker:restart-all": "powershell -ExecutionPolicy Bypass -File ./scripts/docker-full-restart.ps1",
     "dev:docker:shell": "docker compose -f docker-compose.dev.yml exec app sh",
     "// ===== BUILD =====": "",
     "build": "nest build",
@@ -86,7 +87,6 @@
     "@langchain/groq": "^1.1.0",
     "@langchain/ollama": "^1.2.2",
     "@langchain/textsplitters": "^1.0.1",
-    "@nestjs/cache-manager": "^3.1.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.1",
@@ -99,8 +99,6 @@
     "@types/uuid": "^10.0.0",
     "axios": "^1.13.5",
     "bcrypt": "^6.0.0",
-    "cache-manager": "^7.2.8",
-    "cache-manager-redis-yet": "^5.1.5",
     "chromadb": "^3.3.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
@@ -110,15 +108,16 @@
     "helmet": "^8.1.0",
     "langchain": "^1.2.24",
     "marked": "^17.0.2",
+    "mathjs": "^15.1.1",
     "multer": "^2.0.2",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
-    "pdf-parse": "^2.4.5",
     "qdrant-client": "^0.0.1",
     "redis": "^5.10.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^5.0.1",
+    "unpdf": "^0.12.2",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
@@ -147,6 +146,17 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
+  },
+  "overrides": {
+    "minimatch": "^10.2.1",
+    "ajv": "^8.18.0",
+    "glob": "^11.0.0",
+    "@browserbasehq/stagehand": {
+      "dotenv": "^17.0.0"
+    },
+    "unpdf": {
+      "canvas": "npm:empty-npm-package@1.0.0"
+    }
   },
   "jest": {
     "moduleFileExtensions": [
