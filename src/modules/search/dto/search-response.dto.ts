@@ -4,7 +4,7 @@ import type { SearchResult, SearchMetadata } from '../interfaces';
 /**
  * DTO pour la réponse de recherche web
  */
-export class SearchResponseDto {
+export class WebSearchResponseDto {
   @ApiProperty({
     description: 'Résultats de la recherche',
     type: 'array',

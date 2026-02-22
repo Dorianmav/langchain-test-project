@@ -1,7 +1,7 @@
 import { Controller, Post, Get, Body, Logger, Delete } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { SearchService } from './search.service';
-import { SearchRequestDto, SearchResponseDto } from './dto';
+import { SearchRequestDto, WebSearchResponseDto } from './dto';
 
 /**
  * Contrôleur pour la recherche web
@@ -32,7 +32,7 @@ Les résultats sont mis en cache pendant 1 heure.
   @ApiResponse({
     status: 200,
     description: 'Résultats de recherche',
-    type: SearchResponseDto,
+    type: WebSearchResponseDto,
   })
   @ApiResponse({
     status: 400,
@@ -42,7 +42,7 @@ Les résultats sont mis en cache pendant 1 heure.
     status: 500,
     description: 'Erreur serveur (les deux providers ont échoué)',
   })
-  async search(@Body() dto: SearchRequestDto): Promise<SearchResponseDto> {
+  async search(@Body() dto: SearchRequestDto): Promise<WebSearchResponseDto> {
     this.logger.log(`🔍 POST /search - Query: "${dto.query}"`);
     return this.searchService.search(dto);
   }

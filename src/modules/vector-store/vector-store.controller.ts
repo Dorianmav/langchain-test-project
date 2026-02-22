@@ -4,8 +4,8 @@ https://docs.nestjs.com/controllers#controllers
 
 import { Controller, Post, Get, Delete, Put, Body, Query, HttpException, HttpStatus, Param, UseInterceptors } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
-import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { VectorStoreService } from './vector-store.service';
+import { RedisService } from '../../common/cache/redis.service';
 import { AuditInterceptor } from '../../common/interceptors/audit.interceptor';
 import { 
   AddDocumentsDto, 
@@ -20,7 +20,12 @@ import {
 @Controller('vector-store')
 @UseInterceptors(AuditInterceptor)
 export class VectorStoreController {
-  constructor(private readonly vectorStoreService: VectorStoreService) {}
+  private readonly namespace = 'vector-store';
+
+  constructor(
+    private readonly vectorStoreService: VectorStoreService,
+    private readonly redisService: RedisService,
+  ) {}
 
   @Post('documents')
   @ApiOperation({ summary: 'Ajouter des documents au vector store' })
@@ -53,8 +58,6 @@ export class VectorStoreController {
   }
 
   @Post('search')
-  @UseInterceptors(CacheInterceptor)
-  @CacheTTL(300000) // Cache pour 5 minutes
   @ApiOperation({ summary: 'Rechercher des documents par similarité sémantique' })
   @ApiResponse({ 
     status: 200, 
@@ -63,6 +66,13 @@ export class VectorStoreController {
   })
   async search(@Body() dto: SearchDto): Promise<SearchResponseDto> {
     try {
+      const cacheKey = this.generateCacheKey(dto);
+      const cached = await this.redisService.get<SearchResponseDto>(this.namespace, cacheKey);
+
+      if (cached) {
+        return cached;
+      }
+
       const { documents, metadata } = await this.vectorStoreService.similaritySearch(
         dto.query,
         dto.k,
@@ -70,7 +80,7 @@ export class VectorStoreController {
         dto.includeScores,
       );
 
-      return {
+      const response: SearchResponseDto = {
         documents: documents.map(doc => ({
           id: doc.metadata.id,
           content: doc.content,
@@ -81,6 +91,11 @@ export class VectorStoreController {
         resultsCount: documents.length,
         metadata,
       };
+
+      // Cache Redis 5 minutes (300 secondes)
+      await this.redisService.set(this.namespace, cacheKey, response, 300);
+
+      return response;
     } catch (error) {
       throw new HttpException(
         `Search failed: ${error.message}`,
@@ -196,5 +211,19 @@ export class VectorStoreController {
     }
     
     return document;
+  }
+
+  /**
+   * Génère une clé de cache unique basée sur les paramètres de recherche
+   */
+  private generateCacheKey(dto: SearchDto): string {
+    const parts = [
+      dto.query,
+      dto.k,
+      dto.includeScores,
+      dto.filter ? JSON.stringify(dto.filter) : '',
+    ].filter(v => v !== undefined && v !== '');
+
+    return parts.join(':');
   }
 }
