@@ -4,3 +4,4 @@ export * from './agent-step.dto';
 export * from './custom-tool.dto';
 export * from './custom-tool-response.dto';
 export * from './tool-list.dto';
+export * from './delete-tool-response.dto';
