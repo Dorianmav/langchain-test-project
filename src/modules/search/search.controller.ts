@@ -1,7 +1,14 @@
 import { Controller, Post, Get, Body, Logger, Delete } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { SearchService } from './search.service';
-import { SearchRequestDto, WebSearchResponseDto } from './dto';
+import {
+  SearchRequestDto,
+  WebSearchResponseDto,
+  QuotaStatsDto,
+  SearchHealthDto,
+  ClearCacheResponseDto,
+  ResetQuotaResponseDto,
+} from './dto';
 
 /**
  * Contrôleur pour la recherche web
@@ -58,27 +65,7 @@ Les résultats sont mis en cache pendant 1 heure.
   @ApiResponse({
     status: 200,
     description: 'Statistiques de quota',
-    schema: {
-      type: 'object',
-      properties: {
-        usedQuota: { type: 'number', example: 247 },
-        quotaLimit: { type: 'number', example: 1000 },
-        remainingQuota: { type: 'number', example: 753 },
-        usagePercentage: { type: 'number', example: 24.7 },
-        currentMonth: { type: 'string', example: '2026-02' },
-        lastResetDate: { type: 'string', example: '2026-02-01T00:00:00.000Z' },
-        history: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              date: { type: 'string', example: '2026-02-16' },
-              count: { type: 'number', example: 15 },
-            },
-          },
-        },
-      },
-    },
+    type: QuotaStatsDto,
   })
   getQuotaStats() {
     this.logger.log('📊 GET /search/quota');
@@ -96,13 +83,7 @@ Les résultats sont mis en cache pendant 1 heure.
   @ApiResponse({
     status: 200,
     description: 'État de santé des providers',
-    schema: {
-      type: 'object',
-      properties: {
-        tavily: { type: 'boolean', example: true },
-        searxng: { type: 'boolean', example: true },
-      },
-    },
+    type: SearchHealthDto,
   })
   async checkHealth() {
     this.logger.log('🏥 GET /search/health');
@@ -120,13 +101,7 @@ Les résultats sont mis en cache pendant 1 heure.
   @ApiResponse({
     status: 200,
     description: 'Cache vidé avec succès',
-    schema: {
-      type: 'object',
-      properties: {
-        message: { type: 'string', example: 'Search cache cleared successfully' },
-        cleared: { type: 'number', example: 15 },
-      },
-    },
+    type: ClearCacheResponseDto,
   })
   async clearCache() {
     this.logger.log('🗑️  DELETE /search/cache');
@@ -148,12 +123,7 @@ Les résultats sont mis en cache pendant 1 heure.
   @ApiResponse({
     status: 200,
     description: 'Quota reset avec succès',
-    schema: {
-      type: 'object',
-      properties: {
-        message: { type: 'string', example: 'Quota reset successfully' },
-      },
-    },
+    type: ResetQuotaResponseDto,
   })
   resetQuota() {
     this.logger.warn('⚠️  POST /search/quota/reset - Manual quota reset');
