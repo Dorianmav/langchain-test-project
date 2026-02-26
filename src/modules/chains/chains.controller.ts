@@ -13,6 +13,7 @@ import {
   ConversationalRetrievalDto,
   ConversationalRetrievalResponseDto,
   ClearMemoryDto,
+  ClearMemoryResponseDto,
 } from './dto';
 
 /**
@@ -190,13 +191,7 @@ export class ChainsController {
   @ApiResponse({
     status: 200,
     description: 'Mémoire de session supprimée',
-    schema: {
-      type: 'object',
-      properties: {
-        message: { type: 'string', example: 'Session memory cleared successfully' },
-        sessionId: { type: 'string', example: 'user-123' },
-      },
-    },
+    type: ClearMemoryResponseDto,
   })
   async clearMemory(@Param('sessionId') sessionId: string): Promise<{ message: string; sessionId: string }> {
     await this.conversationalRetrievalService.clearSessionMemory(sessionId);
