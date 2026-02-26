@@ -54,6 +54,8 @@
     "test:e2e:rag": "jest --config test/jest-e2e.json --testPathPattern=rag --forceExit",
     "test:e2e:documents": "jest --config test/jest-e2e.json --testPathPattern=document-loader --forceExit",
     "test:e2e:prompts": "jest --config test/jest-e2e.json --testPathPattern=prompts --forceExit",
+    "test:e2e:ci": "jest --config test/jest-e2e.json --forceExit --detectOpenHandles --runInBand --ci",
+    "test:unit:ci": "jest --config jest-unit.json --ci --coverage --coverageReporters=lcov --coverageReporters=text-summary",
     "// ===== DATABASE =====": "",
     "db:backup": "cd docker && node scripts/db-backup.js",
     "db:restore": "node scripts/db-restore.js",

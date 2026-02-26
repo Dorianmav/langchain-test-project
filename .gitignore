@@ -281,6 +281,12 @@ coverage/
 .nyc_output/
 *.coverage
 
+# GitHub Actions / CI artefacts générés
+newman-results/
+openapi-spec.json
+postman/generated-collection.json
+postman/ci-environment.json
+
 # ============================================
 # SÉCURITÉ
 # ============================================
