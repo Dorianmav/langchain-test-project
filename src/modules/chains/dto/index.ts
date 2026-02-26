@@ -3,6 +3,7 @@ export * from './simple-chain-response.dto';
 export * from './sequential-chain.dto';
 export * from './sequential-chain-response.dto';
 export * from './chain-step.dto';
+export * from './clear-memory-response.dto';
 export * from './step-result.dto';
 export * from './retrieval-qa.dto';
 export * from './retrieval-qa-response.dto';

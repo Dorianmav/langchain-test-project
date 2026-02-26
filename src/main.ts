@@ -74,6 +74,8 @@ async function bootstrap() {
       .setTitle('LangChain RAG API')
       .setDescription('API pour le projet LangChain avec RAG, LLM et Vector Stores')
       .setVersion('1.0')
+      .addServer(`http://localhost:${port}`, 'Local (dev direct)')
+      .addServer('http://localhost:3001', 'Local (Docker)')
       .addTag('llm', 'Endpoints pour les Large Language Models (Ollama, Groq)')
       .addTag('rag', 'Endpoints pour Retrieval Augmented Generation')
       .addTag('search', 'Endpoints pour la recherche web (DuckDuckGo, Tavily)')

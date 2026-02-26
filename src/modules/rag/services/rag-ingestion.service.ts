@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Document } from '@langchain/core/documents';
 import { DocumentLoaderService } from '../../document-loader/document-loader.service';
 import { VectorStoreService } from '../../vector-store/vector-store.service';
 import { IngestDocumentDto, IngestResponseDto } from '../dto';

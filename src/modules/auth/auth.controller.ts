@@ -2,7 +2,7 @@ import { Body, Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { Public } from './decorators/public.decorator';
 import { AuthService, AuthResponse } from './auth.service';
-import { LoginDto } from './dto/login.dto';
+import { LoginDto, LoginResponseDto } from './dto/login.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -17,13 +17,7 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'Login successful',
-    schema: {
-      properties: {
-        access_token: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
-        token_type: { type: 'string', example: 'Bearer' },
-        expires_in: { type: 'number', example: 86400 },
-      },
-    },
+    type: LoginResponseDto,
   })
   @ApiResponse({
     status: 401,

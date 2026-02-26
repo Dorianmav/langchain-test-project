@@ -11,7 +11,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiResponse, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { DocumentLoaderService } from './document-loader.service';
-import { ProcessDocumentDto, UploadedDocumentResponseDto } from './dto';
+import { ProcessDocumentDto, UploadedDocumentResponseDto, UploadFileResponseDto, SupportedTypesResponseDto } from './dto';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -61,6 +61,7 @@ export class DocumentLoaderController {
   )
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload a document (PDF, TXT, MD, JSON, CSV)' })
+  // Note: le schema inline ici est inévitable pour décrire un champ file binary en multipart/form-data (OpenAPI 3.0)
   @ApiBody({
     schema: {
       type: 'object',
@@ -79,14 +80,7 @@ export class DocumentLoaderController {
   @ApiResponse({
     status: 201,
     description: 'File uploaded successfully',
-    schema: {
-      properties: {
-        filePath: { type: 'string', example: '/uploads/abc123.pdf' },
-        fileName: { type: 'string', example: 'document.pdf' },
-        fileSize: { type: 'number', example: 1024000 },
-        fileType: { type: 'string', example: 'pdf' },
-      },
-    },
+    type: UploadFileResponseDto,
   })
   @ApiResponse({ status: 400, description: 'Invalid file type or size' })
   async uploadFile(
@@ -162,16 +156,7 @@ export class DocumentLoaderController {
   @ApiResponse({
     status: 200,
     description: 'List of supported file types',
-    schema: {
-      type: 'object',
-      properties: {
-        supportedTypes: {
-          type: 'array',
-          items: { type: 'string' },
-          example: ['pdf', 'txt', 'md', 'json', 'csv'],
-        },
-      },
-    },
+    type: SupportedTypesResponseDto,
   })
   getSupportedTypes() {
     return {

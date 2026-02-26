@@ -8,6 +8,7 @@ import {
   CustomToolDto,
   CustomToolResponseDto,
   ToolListDto,
+  DeleteToolResponseDto,
 } from './dto';
 
 /**
@@ -156,13 +157,7 @@ export class AgentsController {
   @ApiResponse({
     status: 200,
     description: 'Outil supprimé',
-    schema: {
-      type: 'object',
-      properties: {
-        message: { type: 'string', example: 'Custom tool deleted successfully' },
-        name: { type: 'string', example: 'weather_api' },
-      },
-    },
+    type: DeleteToolResponseDto,
   })
   deleteTool(@Param('name') name: string): { message: string; name: string } {
     this.customToolService.deleteTool(name);
