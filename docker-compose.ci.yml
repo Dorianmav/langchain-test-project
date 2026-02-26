@@ -1,0 +1,95 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Docker Compose pour la CI GitHub Actions
+# Services minimaux nécessaires pour faire tourner l'API NestJS en test
+# Ollama et les WebUI sont exclus (trop lourds pour la CI)
+# L'API tourne en mode NODE_ENV=test avec un LLM mocké
+# ─────────────────────────────────────────────────────────────────────────────
+services:
+  # Application NestJS — build depuis le Dockerfile de prod
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: rag-nestjs-ci
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=test
+      - PORT=3000
+      # Auth
+      - API_USERNAME=${API_USERNAME:-admin}
+      - API_PASSWORD=${API_PASSWORD:-changeme}
+      - JWT_SECRET=${JWT_SECRET:-ci-test-secret-key-github-actions}
+      - JWT_EXPIRES_IN=1h
+      # LLM — pointe vers un stub Ollama (pas de modèle chargé en CI)
+      - OLLAMA_BASE_URL=http://ollama-stub:11434
+      - LLM_PROVIDER=ollama
+      - LLM_MODEL=llama3.1:8b
+      # Vector Store
+      - VECTOR_STORE_TYPE=chroma
+      - CHROMA_URL=http://chroma:8000
+      # Search — clés optionnelles (les tests utilisent SearXNG par défaut)
+      - TAVILY_API_KEY=${TAVILY_API_KEY:-}
+      - SEARXNG_URL=http://searxng:8080
+      # Redis
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_TLS_ENABLED=false
+      # Désactiver le throttling en CI
+      - THROTTLE_TTL=60
+      - THROTTLE_LIMIT=1000
+    depends_on:
+      redis:
+        condition: service_healthy
+      chroma:
+        condition: service_started
+    networks:
+      - ci-network
+    restart: "no"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ChromaDB — Vector Store (nécessaire pour RAG endpoints)
+  chroma:
+    image: chromadb/chroma:latest
+    container_name: rag-chroma-ci
+    ports:
+      - "8000:8000"
+    environment:
+      - IS_PERSISTENT=FALSE
+      - ANONYMIZED_TELEMETRY=FALSE
+    networks:
+      - ci-network
+
+  # Redis — Cache et mémoire conversationnelle
+  redis:
+    image: redis:7-alpine
+    container_name: rag-redis-ci
+    ports:
+      - "6379:6379"
+    networks:
+      - ci-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # SearXNG — Moteur de recherche (pour SearchService sans quota Tavily)
+  searxng:
+    image: searxng/searxng:latest
+    container_name: rag-searxng-ci
+    ports:
+      - "8080:8080"
+    environment:
+      - SEARXNG_BASE_URL=http://searxng:8080
+    networks:
+      - ci-network
+
+networks:
+  ci-network:
+    driver: bridge
