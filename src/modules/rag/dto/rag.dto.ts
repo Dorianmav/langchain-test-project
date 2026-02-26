@@ -1,5 +1,32 @@
-import { IsString, IsOptional, IsNumber, Min, Max, IsObject } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+
+export class RagSourceDto {
+  @ApiProperty({ description: 'Contenu du chunk source', example: 'Pour configurer JWT...' })
+  content: string;
+
+  @ApiProperty({ description: 'Métadonnées du document', example: { source: 'jwt-guide.md' } })
+  metadata: Record<string, any>;
+
+  @ApiProperty({ description: 'Score de similarité (0-1)', example: 0.87 })
+  score: number;
+}
+
+export class RagStatsDto {
+  @ApiProperty({ description: 'Temps de récupération des documents en ms', example: 120 })
+  retrievalTime: number;
+
+  @ApiProperty({ description: 'Temps de génération LLM en ms', example: 850 })
+  generationTime: number;
+
+  @ApiProperty({ description: 'Temps total en ms', example: 970 })
+  totalTime: number;
+
+  @ApiProperty({ description: 'Nombre de documents récupérés', example: 4 })
+  documentsRetrieved: number;
+
+  @ApiProperty({ description: 'Tokens utilisés', example: 512, required: false })
+  tokensUsed?: number;
+}
 
 /**
  * Réponse d'une requête RAG
@@ -19,30 +46,13 @@ export class RAGResponseDto {
 
   @ApiProperty({
     description: 'Documents sources utilisés',
-    type: 'array',
-    items: {
-      type: 'object',
-      properties: {
-        content: { type: 'string' },
-        metadata: { type: 'object' },
-        score: { type: 'number' },
-      },
-    },
+    type: [RagSourceDto],
   })
-  sources: Array<{
-    content: string;
-    metadata: Record<string, any>;
-    score: number;
-  }>;
+  sources: RagSourceDto[];
 
   @ApiProperty({
     description: 'Statistiques de performance',
+    type: RagStatsDto,
   })
-  stats: {
-    retrievalTime: number;
-    generationTime: number;
-    totalTime: number;
-    documentsRetrieved: number;
-    tokensUsed?: number;
-  };
+  stats: RagStatsDto;
 }
