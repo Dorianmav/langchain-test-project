@@ -22,11 +22,10 @@ concurrency:
 env:
   NODE_VERSION: "20"
   API_URL: "http://localhost:3001"
-  API_INTERNAL_URL: "http://localhost:3000"
-  # Credentials de test (pas de secrets réels, valeurs par défaut CI)
-  API_USERNAME: admin
-  API_PASSWORD: changeme
-  JWT_SECRET: ci-test-secret-key-github-actions
+  # Credentials : valeurs par défaut CI, surchargées par GitHub Secrets si définis
+  API_USERNAME: ${{ secrets.API_USERNAME || 'admin' }}
+  API_PASSWORD: ${{ secrets.API_PASSWORD || 'changeme' }}
+  JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci-test-secret-key-github-actions' }}
   NODE_ENV: test
 
 jobs:
@@ -50,7 +49,7 @@ jobs:
         run: npm ci
 
       - name: 🔍 ESLint
-        run: npm run lint:local
+        run: npm run lint:local -- --max-warnings 0
         continue-on-error: false
 
       - name: 🔷 TypeScript check (tsc --noEmit)
@@ -114,8 +113,14 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
 
-      - name: 📦 Install dependencies (for Newman + openapi-to-postman)
+      - name: 📦 Install dependencies
         run: npm ci
+
+      - name: 📦 Install Newman and reporters globally
+        run: |
+          npm install -g newman newman-reporter-htmlextra
+          # openapi-to-postmanv2 : outil CLI pour convertir OpenAPI → Postman collection
+          npm install -g openapi-to-postmanv2
 
       # ── Build et démarrage de la stack CI ──────────────────────────────────
       - name: 🐳 Build Docker image
@@ -126,6 +131,13 @@ jobs:
           docker compose -f docker-compose.ci.yml up -d
           echo "✅ Containers démarrés"
           docker compose -f docker-compose.ci.yml ps
+        env:
+          # Variables injectées dans les services via docker-compose.ci.yml ${VAR:-default}
+          SWAGGER_ENABLED: "true"
+          API_USERNAME: ${{ env.API_USERNAME }}
+          API_PASSWORD: ${{ env.API_PASSWORD }}
+          JWT_SECRET: ${{ env.JWT_SECRET }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
 
       # ── Attendre que l'API soit prête ───────────────────────────────────────
       - name: ⏳ Wait for API to be ready
@@ -165,20 +177,22 @@ jobs:
           echo "✅ JWT obtenu"
           echo "token=$TOKEN" >> $GITHUB_OUTPUT
 
-      # ── Générer la collection Postman depuis OpenAPI ────────────────────────
+      # ── Générer la collection Postman depuis OpenAPI ──────────────────────────
       - name: 📋 Generate Postman collection from OpenAPI spec
         run: |
           # Récupérer la spec OpenAPI depuis l'API en cours d'exécution
-          curl -s "${{ env.API_URL }}/api-json" -o openapi-spec.json
+          curl -sf "${{ env.API_URL }}/api-json" -o openapi-spec.json
           echo "✅ OpenAPI spec récupérée"
-          cat openapi-spec.json | jq '.info.title, .info.version'
+          jq '.info.title, .info.version' openapi-spec.json
 
           # Convertir en collection Postman v2.1
-          npx --yes openapi-to-postmanv2 \
+          # openapi-to-postmanv2 est installé globalement à l'étape précédente
+          openapi-to-postmanv2 \
             -s openapi-spec.json \
             -o postman/generated-collection.json \
             -O folderStrategy=Tags,requestParametersResolution=Example,optimizeParameterHandling=true,includeAuthInfoInExample=true
           echo "✅ Collection Postman générée"
+          jq '.info.name, (.item | length)' postman/generated-collection.json
 
       # ── Injecter le token JWT dans la collection générée ───────────────────
       - name: 🔐 Inject JWT token into Postman collection
@@ -207,27 +221,38 @@ jobs:
           JWT_TOKEN: ${{ steps.auth.outputs.token }}
           API_URL: ${{ env.API_URL }}
 
+      # ── Créer le dossier pour les résultats Newman ────────────────────────
+      - name: 📁 Create newman-results directory
+        run: mkdir -p newman-results
+
       # ── Créer l'environnement Postman pour Newman ──────────────────────────
       - name: 🌍 Create Postman environment file for Newman
         run: |
-          cat > postman/ci-environment.json << EOF
-          {
-            "id": "ci-environment",
-            "name": "CI Environment",
-            "values": [
-              { "key": "baseUrl", "value": "${{ env.API_URL }}", "enabled": true },
-              { "key": "jwtToken", "value": "${{ steps.auth.outputs.token }}", "enabled": true },
-              { "key": "username", "value": "${{ env.API_USERNAME }}", "enabled": true },
-              { "key": "password", "value": "${{ env.API_PASSWORD }}", "enabled": true }
-            ]
-          }
-          EOF
-          echo "✅ Environnement Postman créé"
+          # Utiliser node pour éviter les problèmes d'échappement bash avec le heredoc
+          node -e "
+            const env = {
+              id: 'ci-environment',
+              name: 'CI Environment',
+              values: [
+                { key: 'baseUrl',  value: process.env.API_URL,       enabled: true },
+                { key: 'jwtToken', value: process.env.JWT_TOKEN,     enabled: true },
+                { key: 'username', value: process.env.API_USERNAME,  enabled: true },
+                { key: 'password', value: process.env.API_PASSWORD,  enabled: true }
+              ]
+            };
+            require('fs').writeFileSync('postman/ci-environment.json', JSON.stringify(env, null, 2));
+            console.log('✅ Environnement Postman créé');
+          "
+        env:
+          API_URL: ${{ env.API_URL }}
+          JWT_TOKEN: ${{ steps.auth.outputs.token }}
+          API_USERNAME: ${{ env.API_USERNAME }}
+          API_PASSWORD: ${{ env.API_PASSWORD }}
 
       # ── Exécuter Newman (tests Postman en CLI) ─────────────────────────────
       - name: 🏃 Run Newman (Postman collection tests)
         run: |
-          npx --yes newman run postman/generated-collection.json \
+          newman run postman/generated-collection.json \
             --environment postman/ci-environment.json \
             --reporters cli,junit,htmlextra \
             --reporter-junit-export newman-results/junit.xml \
@@ -236,27 +261,26 @@ jobs:
             --timeout-request 30000 \
             --delay-request 200 \
             --bail \
-            --color on \
-            || (echo "❌ Newman a détecté des échecs" && exit 1)
-        env:
-          NEWMAN_SUPPRESS_EXIT_CODE: "false"
+            --color on
+        # Newman retourne exit code non-zéro si des tests échouent → la step échoue automatiquement
 
       # ── Rapport Newman complémentaire sur la collection Postman versionnée ─
       - name: 🏃 Run Newman (versioned Postman collection)
         if: success()
         run: |
-          if [ -f "postman/LangChain-RAG-NestJS-API.postman_collection.json" ]; then
-            npx newman run postman/LangChain-RAG-NestJS-API.postman_collection.json \
+          COLLECTION="postman/LangChain-RAG-NestJS-API.postman_collection.json"
+          if [ -f "$COLLECTION" ]; then
+            echo "📋 Exécution de la collection versionnée..."
+            newman run "$COLLECTION" \
               --environment postman/ci-environment.json \
               --reporters cli,junit \
               --reporter-junit-export newman-results/junit-versioned.xml \
               --timeout-request 30000 \
               --delay-request 200 \
-              --ignore-redirects \
               --color on \
-              || echo "⚠️  Quelques tests de la collection versionnée ont échoué"
+            || echo "⚠️  Certains tests de la collection versionnée ont échoué (non-bloquant)"
           else
-            echo "ℹ️  Pas de collection Postman versionnée trouvée, skipping"
+            echo "ℹ️  Collection Postman versionnée absente — skipping"
           fi
 
       # ── Afficher les logs Docker en cas d'échec ────────────────────────────
