@@ -4,6 +4,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import expressBasicAuth from 'express-basic-auth';
 import helmet from 'helmet';
+import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+import { Reflector } from '@nestjs/core';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -61,7 +63,7 @@ async function bootstrap() {
     const swaggerPassword = process.env.SWAGGER_PASSWORD || 'changeme';
 
     app.use(
-      ['/api', '/api-json'],
+      ['/api'],
       expressBasicAuth({
         challenge: true,
         users: { [swaggerUsername]: swaggerPassword },
@@ -92,8 +94,17 @@ async function bootstrap() {
     console.log(`\n📚 Swagger désactivé (SWAGGER_ENABLED=${swaggerEnabled})`);
   }
 
+  const reflector = app.get(Reflector);
+
+  if (nodeEnv === 'production') {
+    app.useGlobalGuards(new JwtAuthGuard(reflector));
+    console.log('🔐 Auth activée');
+  } else {
+    console.log('⚡ Auth désactivée en dev');
+  }
+
   await app.listen(port);
-  
+
   console.log(`\n🚀 Application démarrée sur: http://localhost:${port}`);
   console.log(`🌍 Environnement: ${nodeEnv}\n`);
 }
