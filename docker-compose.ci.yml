@@ -1,11 +1,11 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # Docker Compose pour la CI GitHub Actions
-# Services minimaux nécessaires pour faire tourner l'API NestJS en test
-# Ollama et les WebUI sont exclus (trop lourds pour la CI)
-# L'API tourne en mode NODE_ENV=test avec un LLM mocké
+# Inspiré de docker-compose.dev.yml pour les variables d'environnement,
+# mais exécute le binaire compilé (dist/main.js) comme en production.
+# Ollama / WebUI / Qdrant / Postgres / Nginx exclus — trop lourds pour la CI.
 # ─────────────────────────────────────────────────────────────────────────────
 services:
-  # Application NestJS — build depuis le Dockerfile de prod
+  # Application NestJS — build multi-stage depuis Dockerfile (image de prod)
   app:
     build:
       context: .
@@ -16,44 +16,68 @@ services:
     environment:
       - NODE_ENV=test
       - PORT=3000
-      # Auth
-      - API_USERNAME=${API_USERNAME:-admin}
-      - API_PASSWORD=${API_PASSWORD:-changeme}
+
+      # ── Swagger (activé en CI pour exposer /api-json, sans basic-auth) ───────
+      - SWAGGER_ENABLED=${SWAGGER_ENABLED:-true}
+      - SWAGGER_USERNAME=${SWAGGER_USERNAME:-admin}
+      - SWAGGER_PASSWORD=${SWAGGER_PASSWORD:-changeme}
+
+      # ── CORS ───────────────────────────────────────────────────────────────
+      - ALLOWED_ORIGINS=http://localhost:3001,http://localhost:3000
+
+      # ── Auth JWT ───────────────────────────────────────────────────────────
       - JWT_SECRET=${JWT_SECRET:-ci-test-secret-key-github-actions}
       - JWT_EXPIRES_IN=1h
-      # LLM — pointe vers un stub Ollama (pas de modèle chargé en CI)
+      - API_USERNAME=${API_USERNAME:-admin}
+      - API_PASSWORD=${API_PASSWORD:-changeme}
+
+      # ── LLM — pointe vers Ollama mais aucun modèle n'est chargé en CI.
+      #    Les endpoints LLM retourneront une erreur 500 si appelés sans mock.
       - OLLAMA_BASE_URL=http://ollama-stub:11434
       - LLM_PROVIDER=ollama
       - LLM_MODEL=llama3.1:8b
-      # Vector Store
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+
+      # ── Vector Store ───────────────────────────────────────────────────────
       - VECTOR_STORE_TYPE=chroma
       - CHROMA_URL=http://chroma:8000
-      # Search — clés optionnelles (les tests utilisent SearXNG par défaut)
+      - QDRANT_URL=http://qdrant:6333
+
+      # ── Search ─────────────────────────────────────────────────────────────
       - TAVILY_API_KEY=${TAVILY_API_KEY:-}
       - SEARXNG_URL=http://searxng:8080
-      # Redis
+
+      # ── Redis ──────────────────────────────────────────────────────────────
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - REDIS_DB=0
       - REDIS_TLS_ENABLED=false
-      # Désactiver le throttling en CI
+
+      # ── Throttling — relevé en CI pour éviter les faux positifs ───────────
       - THROTTLE_TTL=60
-      - THROTTLE_LIMIT=1000
+      - THROTTLE_LIMIT=10000
+
     depends_on:
       redis:
         condition: service_healthy
       chroma:
         condition: service_started
+      searxng:
+        condition: service_started
     networks:
       - ci-network
     restart: "no"
+    # Le Dockerfile prod démarre avec dumb-init + node dist/main.js
+    # Pas besoin de surcharger la commande
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
       interval: 10s
       timeout: 5s
-      retries: 10
-      start_period: 30s
+      retries: 12
+      start_period: 40s
 
-  # ChromaDB — Vector Store (nécessaire pour RAG endpoints)
+  # ChromaDB — Vector Store éphémère (non-persistant en CI)
   chroma:
     image: chromadb/chroma:latest
     container_name: rag-chroma-ci
@@ -78,14 +102,16 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+      start_period: 5s
 
-  # SearXNG — Moteur de recherche (pour SearchService sans quota Tavily)
+  # SearXNG — Moteur de recherche auto-hébergé (fallback si pas de clé Tavily)
   searxng:
     image: searxng/searxng:latest
     container_name: rag-searxng-ci
     ports:
-      - "8080:8080"
+      - "8888:8080"
     environment:
+      # URL interne réseau (utilisée par l'app NestJS)
       - SEARXNG_BASE_URL=http://searxng:8080
     networks:
       - ci-network
