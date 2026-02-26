@@ -8,10 +8,6 @@ export class CreatePromptDto {
   @ApiProperty({
     description: 'Type de prompt à créer (système) ou nom de template personnalisé',
     example: 'rag',
-    examples: {
-      system: { value: 'rag', description: 'Template système RAG' },
-      custom: { value: 'search', description: 'Template personnalisé search' },
-    },
   })
   @IsString()
   @IsNotEmpty()
