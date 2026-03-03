@@ -15,6 +15,7 @@ import { PromptsModule } from './modules/prompts/prompts.module';
 import { SearchModule } from './modules/search/search.module';
 import { ChainsModule } from './modules/chains/chains.module';
 import { AgentsModule } from './modules/agents/agents.module';
+import { ConversationsModule } from './modules/conversations/conversations.module';
 import { AuditModule } from './common/audit.module';
 import { RedisModule } from './common/cache/redis.module';
 
@@ -49,6 +50,7 @@ import { RedisModule } from './common/cache/redis.module';
     RagModule,
     ChainsModule,
     AgentsModule,
+    ConversationsModule,
   ],
   controllers: [AppController],
   providers: [

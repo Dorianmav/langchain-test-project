@@ -73,4 +73,15 @@ export class ConversationalRetrievalDto {
   @IsOptional()
   @IsString()
   model?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Prompt système injecté côté serveur avant la réponse du LLM. ' +
+      'Permet de définir le comportement, le ton et les contraintes de réponse. ' +
+      'Non exposé dans l\'historique conversationnel.',
+    example: 'Réponds toujours en français. Sois concis et précis.',
+  })
+  @IsOptional()
+  @IsString()
+  systemPrompt?: string;
 }

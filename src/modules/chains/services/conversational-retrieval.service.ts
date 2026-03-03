@@ -91,7 +91,8 @@ export class ConversationalRetrievalService {
       const prompt = this.buildConversationalPrompt(
         standaloneQuestion,
         context,
-        chatHistory
+        chatHistory,
+        dto.systemPrompt,
       );
 
       const llmResponse = await this.llmService.generate(prompt, {
@@ -168,7 +169,8 @@ QUESTION REFORMULÉE:`;
   private buildConversationalPrompt(
     question: string,
     context: string,
-    chatHistory: any[]
+    chatHistory: any[],
+    systemPrompt?: string,
   ): string {
     // Formatter l'historique (limité aux derniers échanges)
     let historySection = '';
@@ -182,8 +184,13 @@ QUESTION REFORMULÉE:`;
         .join('\n')}\n`;
     }
 
+    // Bloc système personnalisé (fourni par le client) ou instructions par défaut
+    const systemBlock = systemPrompt
+      ? `INSTRUCTIONS SYSTÈME:\n${systemPrompt}\n`
+      : '';
+
     return `Tu es un assistant intelligent qui répond aux questions en te basant sur les documents fournis et l'historique de conversation.
-${historySection}
+${systemBlock}${historySection}
 CONTEXTE (Documents pertinents):
 ${context}
 

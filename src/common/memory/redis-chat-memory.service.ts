@@ -126,13 +126,15 @@ export class RedisChatMemoryService {
     }
 
     // Convertir les messages JSON en instances BaseMessage
+    // Note: les objets désérialisés depuis Redis sont du JSON brut sans méthodes,
+    // donc on utilise msg.type directement (jamais msg._getType() sur du JSON).
     return cached.map(msg => {
-      if (msg._getType() === 'human' || msg.type === 'human') {
-        return new HumanMessage(msg.content || msg.text);
-      } else if (msg._getType() === 'ai' || msg.type === 'ai') {
-        return new AIMessage(msg.content || msg.text);
+      const type: string = msg.type || '';
+      const content: string = msg.content || msg.text || '';
+      if (type === 'ai') {
+        return new AIMessage(content);
       }
-      return new HumanMessage(msg.content || msg.text || '');
+      return new HumanMessage(content);
     });
   }
 
